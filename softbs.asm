@@ -3,12 +3,112 @@ MODEL small
 STACK 100h
 DATASEG
 ; --------------------------
+	length_of_points dw 0
+
+	xp db 0
+	db 100 dup(?)
+	xf dd 0
+	dd 100 dup(0)
+	xv dd 0
+	dd 100 dup(0)
+	yp db 0
+	db 100 dup(?)
+	yf dd 0
+	dd 100 dup(0)
+	yv dd 0
+	dd 100 dup(0)
 
 ; --------------------------
 ;hello world
 CODESEG
 ;=====================================================================================================
+;[bp+4] = x numbers of points in the x direction
+;[bp+6] = y numbers of points in the y direction
+;[bp+8] = x_position in dataseg
+;[bp+10] = y_position in dataseg
+proc make_squre
+	push bp
+	mov bp,sp
 
+	push ax
+	push bx
+	push cx
+	push si
+	push di
+	; --------------------------
+	mov cx,[bp+6]
+	mov si,[bp+8] ;xp
+	mov di,[bp+10] ;yp
+	mov bl,160
+	mov bh,160
+	
+	y_position_loop:
+	push cx
+	mov cx,[bp+4]
+	x_position_loop:
+	mov [si],bl
+	mov [di],bh
+	add si,2
+	add di,2
+	add bl,6
+	loop x_position_loop
+	pop cx
+	add bh,6
+	loop y_position_loop
+
+	; --------------------------
+	pop di
+	pop si
+	pop cx
+	pop bx
+	pop ax
+	pop bp
+	ret 8
+endp make_squre
+
+;=====================================================================================================
+
+proc draw
+	push bp
+	mov bp,sp
+
+	push ax
+	push bx
+	push cx
+	push dx
+	push si
+	push di
+	; --------------------------
+	mov cx,[length_of_points]
+	mov di,offset xp
+	mov si,offset yp
+	draw_loop:
+	xor ax,ax
+	xor bx,bx
+	xor dx,dx
+	mov al,[si]
+	mov bx,320
+	mul bx
+	xor bx,bx
+	mov bl,[di]
+	add ax,bx
+	mov bx,ax
+	mov [es:bx],4
+	inc di
+	inc si
+	loop draw_loop
+
+
+	; --------------------------
+	pop di
+	pop si
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	pop bp
+	ret 
+endp draw
 
 ;=====================================================================================================
 start:
@@ -21,9 +121,29 @@ start:
 	int 10h
 ; --------------------------
 
+;[bp+4] = x numbers of points in the x direction
+;[bp+6] = y numbers of points in the y direction
+;[bp+8] = x_position in dataseg
+;[bp+10] = y_position in dataseg
+	xor ax,ax
+	mov al,5
+	mov bl,5
+	mul bl
+	mov [length_of_points],ax
+
+
+	push offset yp
+	push offset xp
+	push 5
+	push 5
+	call make_squre
+	call draw
 
 
 
+
+mov ah,1
+int 21h
 ; --------------------------
     ; Return to text mode
 	mov ah, 0
