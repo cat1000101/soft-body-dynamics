@@ -4,6 +4,8 @@ STACK 100h
 DATASEG
 ; --------------------------
 	length_of_points dw 0
+	temp_place1 dd 0
+	temp_place2 dd 0
 
 	xp db 0
 	db 100 dup(?)
@@ -35,28 +37,36 @@ proc make_squre
 	push cx
 	push si
 	push di
+	push dx
 	; --------------------------
 	mov cx,[bp+6]
 	mov si,[bp+8] ;xp
 	mov di,[bp+10] ;yp
 	mov bl,160
 	mov bh,160
-	
+	mov al,[bp+4]
+	mov dl,3
+	mul dl
+	sub bl,al
+	mov dl,bl
+
 	y_position_loop:
 	push cx
 	mov cx,[bp+4]
 	x_position_loop:
 	mov [si],bl
 	mov [di],bh
-	add si,2
-	add di,2
+	add si,1
+	add di,1
 	add bl,6
 	loop x_position_loop
 	pop cx
-	add bh,6
+	mov bl,dl
+	sub bh,6
 	loop y_position_loop
 
 	; --------------------------
+	pop dx
 	pop di
 	pop si
 	pop cx
@@ -86,7 +96,9 @@ proc draw
 	xor ax,ax
 	xor bx,bx
 	xor dx,dx
-	mov al,[si]
+	mov bl,[si]
+	mov al,200
+	sub al,bl
 	mov bx,320
 	mul bx
 	xor bx,bx
