@@ -4,22 +4,38 @@ STACK 100h
 DATASEG
 ; --------------------------
 	length_of_points dw 0
-	temp_place1 dd 0
-	temp_place2 dd 0
+	temp_integer dw 0
+	temp_float dd 0
 
-	xp db 0
-	db 100 dup(?)
+	xp dd 0
+	dd 100 dup(?)
 	xf dd 0
 	dd 100 dup(0)
 	xv dd 0
 	dd 100 dup(0)
-	yp db 0
-	db 100 dup(?)
+	yp dd 0
+	dd 100 dup(?)
 	yf dd 0
 	dd 100 dup(0)
 	yv dd 0
 	dd 100 dup(0)
 
+	spring1 db 0ffh
+	db 100 dup(0ffh)
+	spring2 db 0ffh
+	db 100 dup(0ffh)
+	spring3 db 0ffh
+	db 100 dup(0ffh)
+	spring4 db 0ffh
+	db 100 dup(0ffh)
+	spring5 db 0ffh
+	db 100 dup(0ffh)
+	spring6 db 0ffh
+	db 100 dup(0ffh)
+	spring7 db 0ffh
+	db 100 dup(0ffh)
+	spring8 db 0ffh
+	db 100 dup(0ffh)
 ; --------------------------
 ;hello world
 CODESEG
@@ -39,30 +55,39 @@ proc make_squre
 	push di
 	push dx
 	; --------------------------
+	xor dx,dx
+	xor ax,ax
 	mov cx,[bp+6]
 	mov si,[bp+8] ;xp
 	mov di,[bp+10] ;yp
-	mov bl,160
-	mov bh,160
+	mov bx,160
 	mov al,[bp+4]
-	mov dl,3
-	mul dl
-	sub bl,al
-	mov dl,bl
-
+	mov dx,3
+	mul dx
+	sub bx,ax
+	mov dx,bx
+	mov ax,dx
+	mov bx,160
+	
 	y_position_loop:
 	push cx
 	mov cx,[bp+4]
 	x_position_loop:
-	mov [si],bl
-	mov [di],bh
-	add si,1
-	add di,1
-	add bl,6
+	mov [si],ax
+	mov [di],bx
+	;make the numbers to flaot numbers
+	fild [word ptr si]
+	fstp [dword ptr si]
+	fild [word ptr di]
+	fstp [dword ptr di]
+
+	add si,4
+	add di,4
+	add ax,6
 	loop x_position_loop
 	pop cx
-	mov bl,dl
-	sub bh,6
+	mov ax,dx
+	sub bx,6
 	loop y_position_loop
 
 	; --------------------------
@@ -96,18 +121,22 @@ proc draw
 	xor ax,ax
 	xor bx,bx
 	xor dx,dx
-	mov bl,[si]
-	mov al,200
-	sub al,bl
+	fld [dword ptr si]
+	fistp [word ptr temp_integer]
+	mov bx,[word ptr temp_integer]
+
+	mov ax,200
+	sub ax,bx
 	mov bx,320
 	mul bx
 	xor bx,bx
-	mov bl,[di]
-	add ax,bx
-	mov bx,ax
+	fld [dword ptr di]
+	fistp [word ptr temp_integer]
+	mov bx,[word ptr temp_integer]
+	add bx,ax
 	mov [es:bx],4
-	inc di
-	inc si
+	add di,4
+	add si,4
 	loop draw_loop
 
 
