@@ -6,18 +6,28 @@ DATASEG
 	length_of_points dw 0
 	temp_integer dw 0
 	temp_float dd 0
+	mass dd 
+	gravity dd 10
 
 	xp dd 0
+	dd 100 dup(?)
+	pxp dd 0
 	dd 100 dup(?)
 	xf dd 0
 	dd 100 dup(0)
 	xv dd 0
 	dd 100 dup(0)
+	xa dd 0
+	dd 100 dup(0)
 	yp dd 0
+	dd 100 dup(?)
+	pyp dd 0
 	dd 100 dup(?)
 	yf dd 0
 	dd 100 dup(0)
 	yv dd 0
+	dd 100 dup(0)
+	ya dd 0
 	dd 100 dup(0)
 
 	spring1 db 0ffh
@@ -44,6 +54,14 @@ CODESEG
 ;[bp+6] = y numbers of points in the y direction
 ;[bp+8] = x_position in dataseg
 ;[bp+10] = y_position in dataseg
+;[bp+12] = spring8 the list of springs in diffrent dirrection
+;[bp+14] = spring7 the list of springs in diffrent dirrection
+;[bp+16] = spring6 the list of springs in diffrent dirrection
+;[bp+18] = spring5 the list of springs in diffrent dirrection
+;[bp+20] = spring4 the list of springs in diffrent dirrection
+;[bp+22] = spring3 the list of springs in diffrent dirrection
+;[bp+24] = spring2 the list of springs in diffrent dirrection
+;[bp+26] = spring1 the list of springs in diffrent dirrection
 proc make_squre
 	push bp
 	mov bp,sp
@@ -98,7 +116,7 @@ proc make_squre
 	pop bx
 	pop ax
 	pop bp
-	ret 8
+	ret 24
 endp make_squre
 
 ;=====================================================================================================
@@ -122,6 +140,7 @@ proc draw
 	xor bx,bx
 	xor dx,dx
 	fld [dword ptr si]
+	frndint
 	fistp [word ptr temp_integer]
 	mov bx,[word ptr temp_integer]
 
@@ -131,6 +150,7 @@ proc draw
 	mul bx
 	xor bx,bx
 	fld [dword ptr di]
+	frndint
 	fistp [word ptr temp_integer]
 	mov bx,[word ptr temp_integer]
 	add bx,ax
@@ -173,6 +193,14 @@ start:
 	mov [length_of_points],ax
 
 
+	push offset spring1
+	push offset spring2
+	push offset spring3
+	push offset spring4
+	push offset spring5
+	push offset spring6
+	push offset spring7
+	push offset spring8
 	push offset yp
 	push offset xp
 	push 5
