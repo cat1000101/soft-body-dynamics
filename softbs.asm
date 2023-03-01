@@ -6,8 +6,8 @@ DATASEG
 	length_of_points dw 0
 	temp_integer dw 0
 	temp_float dd 0
-	mass dd 
-	gravity dd 10
+	mass dd 0.1
+	gravity dd 10.0
 
 	xp dd 0
 	dd 100 dup(?)
@@ -30,25 +30,35 @@ DATASEG
 	ya dd 0
 	dd 100 dup(0)
 
-	spring1 db 0ffh
-	db 100 dup(0ffh)
-	spring2 db 0ffh
-	db 100 dup(0ffh)
-	spring3 db 0ffh
-	db 100 dup(0ffh)
-	spring4 db 0ffh
-	db 100 dup(0ffh)
-	spring5 db 0ffh
-	db 100 dup(0ffh)
-	spring6 db 0ffh
-	db 100 dup(0ffh)
-	spring7 db 0ffh
-	db 100 dup(0ffh)
-	spring8 db 0ffh
-	db 100 dup(0ffh)
+	spring1 dw 0ffffh
+	dw 100 dup(0ffffh)
+	spring2 dw 0ffffh
+	dw 100 dup(0ffffh)
+	spring3 dw 0ffffh
+	dw 100 dup(0ffffh)
+	spring4 dw 0ffffh
+	dw 100 dup(0ffffh)
+	spring5 dw 0ffffh
+	dw 100 dup(0ffffh)
+	spring6 dw 0ffffh
+	dw 100 dup(0ffffh)
+	spring7 dw 0ffffh
+	dw 100 dup(0ffffh)
+	spring8 dw 0ffffh
+	dw 100 dup(0ffffh)
 ; --------------------------
 ;hello world
 CODESEG
+;=====================================================================================================
+proc spring1_proc
+	xor ax,ax
+	xor bx,bx
+	xor dx,dx
+	xor si,si
+
+
+	ret
+endp spring1_proc
 ;=====================================================================================================
 ;[bp+4] = x numbers of points in the x direction
 ;[bp+6] = y numbers of points in the y direction
@@ -108,6 +118,84 @@ proc make_squre
 	sub bx,6
 	loop y_position_loop
 
+	xor ax,ax
+	xor bx,bx
+	xor dx,dx
+	xor si,si
+	mov cx,[length_of_points]
+	mov ax,[bp+4]
+	mov bx,4
+	mul bx
+	mov [bp+4],ax
+	spring_lop:
+
+	cmp si,[bp+4]
+	ja spring1_not_ok
+	mov ax,[bp+4]
+	xor dx,dx
+	div si
+	cmp ax,0
+	je spring1_not_ok
+	mov ax,[bp+4]
+	mov bx,4
+	mul ax
+	mov dx,si
+	sub dx,ax
+	sub dx,4
+	mov di,offset spring1
+	mov [di],dx
+	spring1_not_ok:
+
+	cmp si,[bp+4]
+	ja spring2_not_ok
+	mov ax,[bp+4]
+	mov bx,4
+	mul ax
+	mov dx,si
+	sub dx,ax
+	mov di,offset spring2
+	mov [di],dx
+	spring2_not_ok:
+
+	cmp si,[bp+4]
+	ja spring3_not_ok
+	mov ax,[bp+4]
+	xor dx,dx
+	div si
+	mov dx,[bp+4]
+	sub dx,4
+	cmp ax,dx
+	je spring3_not_ok
+	mov ax,[bp+4]
+	mov bx,4
+	mul ax
+	mov dx,si
+	sub dx,ax
+	add dx,4
+	mov di,offset spring3
+	mov [di],dx
+	spring3_not_ok:
+
+;not good
+	mov ax,[bp+4]
+	xor dx,dx
+	div si
+	mov dx,[bp+4]
+	dec dx
+	cmp ax,dx
+	je spring4_ok
+	jmp spring4_not_ok
+	spring4_ok:
+	mov di,offset spring4
+	mov [di],si
+	spring4_not_ok:
+
+
+
+	add si,4
+	loop spring_lop 
+
+
 	; --------------------------
 	pop dx
 	pop di
@@ -154,7 +242,7 @@ proc draw
 	fistp [word ptr temp_integer]
 	mov bx,[word ptr temp_integer]
 	add bx,ax
-	mov [es:bx],4
+	mov [byte ptr es:bx],4
 	add di,4
 	add si,4
 	loop draw_loop
