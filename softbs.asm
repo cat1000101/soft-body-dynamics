@@ -3,6 +3,23 @@ MODEL small
 STACK 100h
 DATASEG
 ; --------------------------
+	spring1 dw 0ffffh
+	dw 100 dup(0ffffh)
+	spring2 dw 0ffffh
+	dw 100 dup(0ffffh)
+	spring3 dw 0ffffh
+	dw 100 dup(0ffffh)
+	spring4 dw 0ffffh
+	dw 100 dup(0ffffh)
+	spring5 dw 0ffffh
+	dw 100 dup(0ffffh)
+	spring6 dw 0ffffh
+	dw 100 dup(0ffffh)
+	spring7 dw 0ffffh
+	dw 100 dup(0ffffh)
+	spring8 dw 0ffffh
+	dw 100 dup(0ffffh)
+
 	massage_opening db '##########################################################################################',10,13
 	db '##########################################################################################',10,13
 	db '##########################################################################################',10,13
@@ -83,22 +100,7 @@ DATASEG
 	ya dd 0
 	dd 100 dup(0)
 
-	spring1 dw 0ffffh
-	dw 100 dup(0ffffh)
-	spring2 dw 0ffffh
-	dw 100 dup(0ffffh)
-	spring3 dw 0ffffh
-	dw 100 dup(0ffffh)
-	spring4 dw 0ffffh
-	dw 100 dup(0ffffh)
-	spring5 dw 0ffffh
-	dw 100 dup(0ffffh)
-	spring6 dw 0ffffh
-	dw 100 dup(0ffffh)
-	spring7 dw 0ffffh
-	dw 100 dup(0ffffh)
-	spring8 dw 0ffffh
-	dw 100 dup(0ffffh)
+
 ; --------------------------
 ;hello world
 CODESEG
@@ -119,7 +121,7 @@ proc spring1_proc
 	
 	mov si,[bp+8]
 	cmp si,[bp+6]
-	jna spring1_not_ok
+	jb spring1_not_ok
 	mov bx,[bp+6]
 	mov ax,si
 	xor dx,dx
@@ -160,7 +162,7 @@ proc spring2_proc
 
 	mov si,[bp+8]
 	cmp si,[bp+6]
-	jna spring2_not_ok
+	jb spring2_not_ok
 	mov ax,[bp+6]
 	sub si,ax
 	mov di,[bp+4]
@@ -194,7 +196,7 @@ proc spring3_proc
 
 	mov si,[bp+8]
 	cmp si,[bp+6]
-	jna spring3_not_ok
+	jb spring3_not_ok
 	mov bx,[bp+6]
 	mov ax,si
 	xor dx,dx
@@ -422,8 +424,7 @@ proc spring8_proc
 	div bx
 	cmp dx,0
 	je spring8_not_ok
-	mov ax,[bp+6]
-	sub si,ax
+	sub si,4
 	mov di,[bp+4]
 	mov dx,[bp+14]
 	add di,dx
