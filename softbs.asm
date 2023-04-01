@@ -120,22 +120,19 @@ proc spring1_proc
 	mov si,[bp+8]
 	cmp si,[bp+6]
 	jna spring1_not_ok
-	mov ax,[bp+6]
+	mov bx,[bp+6]
+	mov ax,si
 	xor dx,dx
-	div si
+	div bx
 	cmp dx,0
 	je spring1_not_ok
-	mov bx,si
-	mov ax,4
-	xor dx,dx
-	div si
-	mov si,dx
 	mov ax,[bp+6]
-	sub bx,ax
-	sub bx,4
+	sub si,ax
+	sub si,4
 	mov di,[bp+4]
-	add di,si
-	mov [di],bx
+	mov dx,[bp+14]
+	add di,dx
+	mov [di],si
 	spring1_not_ok:
 
 	pop dx
@@ -164,16 +161,12 @@ proc spring2_proc
 	mov si,[bp+8]
 	cmp si,[bp+6]
 	jna spring2_not_ok
-	mov bx,si
-	mov ax,4
-	xor dx,dx
-	div si
-	mov si,dx
 	mov ax,[bp+6]
-	sub bx,ax
+	sub si,ax
 	mov di,[bp+4]
-	add di,si
-	mov [di],bx
+	mov dx,[bp+14]
+	add di,dx
+	mov [di],si
 	spring2_not_ok:
 
 	pop dx
@@ -202,24 +195,21 @@ proc spring3_proc
 	mov si,[bp+8]
 	cmp si,[bp+6]
 	jna spring3_not_ok
-	mov ax,[bp+6]
+	mov bx,[bp+6]
+	mov ax,si
 	xor dx,dx
-	div si
+	div bx
 	mov ax,[bp+6]
 	sub ax,4
 	cmp dx,ax
 	je spring3_not_ok
-	mov bx,si
-	mov ax,4
-	xor dx,dx
-	div si
-	mov si,dx
 	mov ax,[bp+6]
-	sub bx,ax
-	add bx,4
+	sub si,ax
+	add si,4
 	mov di,[bp+4]
-	add di,si
-	mov [di],bx
+	mov dx,[bp+14]
+	add di,dx
+	mov [di],si
 	spring3_not_ok:
 
 
@@ -247,21 +237,19 @@ proc spring4_proc
 	push dx
 
 	mov si,[bp+8]
-	mov ax,[bp+6]
+	mov bx,[bp+6]
+	mov ax,si
 	xor dx,dx
-	div si
+	div bx
 	mov ax,[bp+6]
 	sub ax,4
 	cmp dx,ax
 	je spring4_not_ok
-	mov bx,si
-	mov ax,4
-	div si
-	mov si,dx
-	add bx,4
+	add si,4
 	mov di,[bp+4]
-	add di,si
-	mov [di],bx
+	mov dx,[bp+14]
+	add di,dx
+	mov [di],si
 	spring4_not_ok:
 
 	pop dx
@@ -296,24 +284,21 @@ proc spring5_proc
 	sub bx,ax
 	cmp si,bx
 	jnb spring5_not_ok
-	mov ax,[bp+6]
+	mov bx,[bp+6]
+	mov ax,si
 	xor dx,dx
-	div si
+	div bx
 	mov ax,[bp+6]
 	sub ax,4
 	cmp dx,ax
 	je spring5_not_ok
-	mov bx,si
-	mov ax,4
-	xor dx,dx
-	div si
-	mov si,dx
 	mov ax,[bp+6]
-	add bx,ax
-	add bx,4
+	add si,ax
+	add si,4
 	mov di,[bp+4]
-	add di,si
-	mov [di],bx
+	mov dx,[bp+14]
+	add di,dx
+	mov [di],si
 	spring5_not_ok:
 
 
@@ -340,20 +325,21 @@ proc spring6_proc
 	push di
 	push dx
 
-;not good
 	mov si,[bp+8]
-	cmp si,[bp+6]
-	jna spring6_not_ok
-	mov bx,si
-	mov ax,4
-	xor dx,dx
-	div si
-	mov si,dx
+	mov ax,[bp+6]
+	mov bx,[bp+12]
+	mul bx
+	mov bx,ax
 	mov ax,[bp+6]
 	sub bx,ax
+	cmp si,bx
+	jnb spring6_not_ok
+	mov ax,[bp+6]
+	add si,ax
 	mov di,[bp+4]
-	add di,si
-	mov [di],bx
+	mov dx,[bp+14]
+	add di,dx
+	mov [di],si
 	spring6_not_ok:
 
 
@@ -381,17 +367,27 @@ proc spring7_proc
 	push dx
 
 	mov si,[bp+8]
-	cmp si,[bp+6]
-	jna spring7_not_ok
-	mov dx,si
-	mov ax,4
-	div si
-	mov si,ax
 	mov ax,[bp+6]
-	sub dx,ax
+	mov bx,[bp+12]
+	mul bx
+	mov bx,ax
+	mov ax,[bp+6]
+	sub bx,ax
+	cmp si,bx
+	jnb spring7_not_ok
+	mov bx,[bp+6]
+	mov ax,si
+	xor dx,dx
+	div bx
+	cmp dx,0
+	je spring7_not_ok
+	mov ax,[bp+6]
+	add si,ax
+	sub si,4
 	mov di,[bp+4]
-	add di,si
-	mov [di],dx
+	mov dx,[bp+14]
+	add di,dx
+	mov [di],si
 	spring7_not_ok:
 
 
@@ -404,6 +400,7 @@ proc spring7_proc
 	ret 2
 endp spring7_proc
 ;=====================================================================================================
+;[bp+14] = the ideresion of the point
 ;[bp+12] = number of points in the y direction
 ;[bp+10] = total number of points times 4
 ;[bp+8] = point
@@ -419,17 +416,18 @@ proc spring8_proc
 	push dx
 
 	mov si,[bp+8]
-	cmp si,[bp+6]
-	jna spring8_not_ok
-	mov dx,si
-	mov ax,4
-	div si
-	mov si,ax
+	mov bx,[bp+6]
+	mov ax,si
+	xor dx,dx
+	div bx
+	cmp dx,0
+	je spring8_not_ok
 	mov ax,[bp+6]
-	sub dx,ax
+	sub si,ax
 	mov di,[bp+4]
-	add di,si
-	mov [di],dx
+	mov dx,[bp+14]
+	add di,dx
+	mov [di],si
 	spring8_not_ok:
 
 
@@ -439,7 +437,7 @@ proc spring8_proc
 	pop bx
 	pop ax
 	pop bp
-	ret 10
+	ret 12
 endp spring8_proc
 ;=====================================================================================================
 ;=====================================================================================================
@@ -512,39 +510,42 @@ proc make_squre
 	mov bx,4
 	mul bx
 	mov [bp+4],ax
+	xor bx,bx
 	spring_lop:
 
+	push bx
 	push [bp+6]
 	push [bp+28]
 	push si
 	push [bp+4]
 
-	push offset spring1
+	push [bp+26]
 	call spring1_proc
 
-	push offset spring2
+	push [bp+24]
 	call spring2_proc
 
-	push offset spring2
+	push [bp+22]
 	call spring3_proc
 	
-	push offset spring2
+	push [bp+20]
 	call spring4_proc
 
-	push offset spring2
+	push [bp+18]
 	call spring5_proc
 
-	push offset spring2
+	push [bp+16]
 	call spring6_proc
 
-	push offset spring2
+	push [bp+14]
 	call spring7_proc
 
-	push offset spring2
+	push [bp+12]
 	call spring8_proc
 
 
 	add si,4
+	add bx,2
 	loop spring_lop 
 
 
@@ -556,7 +557,7 @@ proc make_squre
 	pop bx
 	pop ax
 	pop bp
-	ret 24
+	ret 28
 endp make_squre
 
 ;=====================================================================================================
