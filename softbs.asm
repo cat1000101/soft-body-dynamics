@@ -454,8 +454,8 @@ endp spring8_proc
 ;[bp+22] = spring3 the list of springs in diffrent dirrection
 ;[bp+24] = spring2 the list of springs in diffrent dirrection
 ;[bp+26] = spring1 the list of springs in diffrent dirrection
-;[bp+28] = total number of points times 4
-;[bp+30] = total number of points
+;[bp+28] = offset total number of points times 4
+;[bp+30] = offset total number of points
 proc make_squre
 	push bp
 	mov bp,sp
@@ -506,17 +506,19 @@ proc make_squre
 	xor bx,bx
 	xor dx,dx
 	xor si,si
-	mov cx,[bp+30]
+	mov bx,[bp+30]
+	mov cx,[bx]
 	mov ax,[bp+4]
 	mov bx,4
 	mul bx
 	mov [bp+4],ax
 	xor bx,bx
+	mov di,[bp+28]
 	spring_lop:
 
 	push bx
 	push [bp+6]
-	push [bp+28]
+	push [di]
 	push si
 	push [bp+4]
 
@@ -562,7 +564,10 @@ proc make_squre
 endp make_squre
 
 ;=====================================================================================================
-
+;[bp+10] = yp offset
+;[bp+8] = xp offset
+;[bp+6] = temp_integer
+;[bp+4] = length of points
 proc draw
 	push bp
 	mov bp,sp
@@ -574,17 +579,18 @@ proc draw
 	push si
 	push di
 	; --------------------------
-	mov cx,[length_of_points]
-	mov di,offset xp
-	mov si,offset yp
+	mov cx,[bp+4]
+	mov di,[bp+8]
+	mov si,[bp+10]
 	draw_loop:
 	xor ax,ax
 	xor bx,bx
 	xor dx,dx
 	fld [dword ptr si]
 	frndint
-	fistp [word ptr temp_integer]
-	mov bx,[word ptr temp_integer]
+	mov bx,[bp+6]
+	fistp [word ptr bx]
+	mov bx,[word ptr bx]
 
 	mov ax,200
 	sub ax,bx
@@ -593,8 +599,9 @@ proc draw
 	xor bx,bx
 	fld [dword ptr di]
 	frndint
-	fistp [word ptr temp_integer]
-	mov bx,[word ptr temp_integer]
+	mov bx,[bp+6]
+	fistp [word ptr bx]
+	mov bx,[word ptr bx]
 	add bx,ax
 	mov [byte ptr es:bx],4
 	add di,4
@@ -610,8 +617,70 @@ proc draw
 	pop bx
 	pop ax
 	pop bp
-	ret 
+	ret 8
 endp draw
+;=====================================================================================================
+;[bp+4] = x numbers of points in the x direction
+;[bp+6] = y numbers of points in the y direction
+;[bp+8] = x_position in dataseg
+;[bp+10] = y_position in dataseg
+;[bp+12] = spring8 the list of springs in diffrent dirrection
+;[bp+14] = spring7 the list of springs in diffrent dirrection
+;[bp+16] = spring6 the list of springs in diffrent dirrection
+;[bp+18] = spring5 the list of springs in diffrent dirrection
+;[bp+20] = spring4 the list of springs in diffrent dirrection
+;[bp+22] = spring3 the list of springs in diffrent dirrection
+;[bp+24] = spring2 the list of springs in diffrent dirrection
+;[bp+26] = spring1 the list of springs in diffrent dirrection
+;[bp+28] = offset of total number of points times 4
+;[bp+30] = offset of total number of points
+proc init_of_object
+	push bp
+	mov bp,sp
+	push ax
+	push bx
+	push cx
+	push dx
+	push si
+	push di
+
+	mov di,[bp+30]
+	xor ax,ax
+	mov al,5
+	mov bl,5
+	mul bl
+	mov [di],ax
+	mov bx,4
+	mul bx
+	mov di,[bp+28]
+	mov [di],ax
+
+	push [bp+30]
+	push [bp+28]
+	push [bp+26]
+	push [bp+24]
+	push [bp+22]
+	push [bp+20]
+	push [bp+18]
+	push [bp+16]
+	push [bp+14]
+	push [bp+12]
+	push [bp+10]
+	push [bp+8]
+	push 5 ;y
+	push 5 ;x
+	call make_squre
+
+
+	pop di
+	pop si
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	pop bp
+	ret 28
+endp init_of_object
 
 ;=====================================================================================================
 start:
@@ -624,21 +693,8 @@ start:
 	int 10h
 ; --------------------------
 
-;[bp+4] = x numbers of points in the x direction
-;[bp+6] = y numbers of points in the y direction
-;[bp+8] = x_position in dataseg
-;[bp+10] = y_position in dataseg
-	xor ax,ax
-	mov al,5
-	mov bl,5
-	mul bl
-	mov [length_of_points],ax
-	mov bx,4
-	mul bx
-	mov [length_of_points_times_4],ax
-
-	push [word ptr length_of_points]
-	push [word ptr length_of_points_times_4]
+	push offset length_of_points
+	push offset length_of_points_times_4
 	push offset spring1
 	push offset spring2
 	push offset spring3
@@ -651,7 +707,12 @@ start:
 	push offset xp
 	push 5
 	push 5
-	call make_squre
+	call init_of_object
+
+	push offset yp
+	push offset xp
+	push offset temp_integer
+	push [word ptr length_of_points]
 	call draw
 
 
