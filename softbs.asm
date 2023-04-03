@@ -681,7 +681,29 @@ proc init_of_object
 	pop bp
 	ret 28
 endp init_of_object
+;=====================================================================================================
+proc init_manu
+	push bp
+	mov bp,sp
+	push ax
+	push bx
+	push cx
+	push dx
+	push si
+	push di
 
+
+
+
+	pop di
+	pop si
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	pop bp
+	ret
+endp init_manu
 ;=====================================================================================================
 start:
 	mov ax, @data
@@ -692,6 +714,8 @@ start:
 	mov ax, 13h
 	int 10h
 ; --------------------------
+
+	call init_manu
 
 	push offset length_of_points
 	push offset length_of_points_times_4
@@ -709,13 +733,15 @@ start:
 	push 5
 	call init_of_object
 
+;main_lop:
+
 	push offset yp
 	push offset xp
 	push offset temp_integer
 	push [word ptr length_of_points]
 	call draw
 
-
+;jmp main_lop
 
 
 mov ah,1
