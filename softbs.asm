@@ -3,6 +3,34 @@ MODEL small
 STACK 100h
 DATASEG
 ; --------------------------
+	length_of_points dw 0
+	length_of_points_times_4 dw 0
+	temp_integer dw 0
+	temp_float dd 0
+	mass dd 0.1
+	gravity dd 10.0
+
+	xp dd 0
+	dd 100 dup(?)
+	pxp dd 0
+	dd 100 dup(?)
+	xf dd 0
+	dd 100 dup(0)
+	xv dd 0
+	dd 100 dup(0)
+	xa dd 0
+	dd 100 dup(0)
+	yp dd 0
+	dd 100 dup(?)
+	pyp dd 0
+	dd 100 dup(?)
+	yf dd 0
+	dd 100 dup(0)
+	yv dd 0
+	dd 100 dup(0)
+	ya dd 0
+	dd 100 dup(0)
+
 	spring1 dw 0ffffh
 	dw 100 dup(0ffffh)
 	spring2 dw 0ffffh
@@ -71,35 +99,6 @@ DATASEG
 	db '##########################################################################################',10,13
 	db '##########################################################################################',10,13
 	db '##########################################################################################',10,13,'$'
-
-	length_of_points dw 0
-	length_of_points_times_4 dw 0
-	temp_integer dw 0
-	temp_float dd 0
-	mass dd 0.1
-	gravity dd 10.0
-
-	xp dd 0
-	dd 100 dup(?)
-	pxp dd 0
-	dd 100 dup(?)
-	xf dd 0
-	dd 100 dup(0)
-	xv dd 0
-	dd 100 dup(0)
-	xa dd 0
-	dd 100 dup(0)
-	yp dd 0
-	dd 100 dup(?)
-	pyp dd 0
-	dd 100 dup(?)
-	yf dd 0
-	dd 100 dup(0)
-	yv dd 0
-	dd 100 dup(0)
-	ya dd 0
-	dd 100 dup(0)
-
 
 ; --------------------------
 ;hello world
