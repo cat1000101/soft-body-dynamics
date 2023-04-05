@@ -455,6 +455,9 @@ endp spring8_proc
 ;[bp+26] = spring1 the list of springs in diffrent dirrection
 ;[bp+28] = offset total number of points times 4
 ;[bp+30] = offset total number of points
+;[bp+32] = offset of pxp
+;[bp+34] = offset of pyp
+;[bp+36] = random
 proc make_squre
 	push bp
 	mov bp,sp
@@ -469,8 +472,6 @@ proc make_squre
 	xor dx,dx
 	xor ax,ax
 	mov cx,[bp+6]
-	mov si,[bp+8] ;xp
-	mov di,[bp+10] ;yp
 	mov bx,160
 	mov al,[bp+4]
 	mov dx,3
@@ -479,25 +480,36 @@ proc make_squre
 	mov dx,bx
 	mov ax,dx
 	mov bx,160
+	mov [bp+36],dx
+	xor dx,dx
 	
 	y_position_loop:
 	push cx
 	mov cx,[bp+4]
 	x_position_loop:
+	mov si,[bp+8] ;xp
+	mov di,[bp+10] ;yp
+	add si,dx
+	add di,dx
 	mov [si],ax
 	mov [di],bx
 	;make the numbers to flaot numbers
 	fild [word ptr si]
+	fst [dword ptr si]
+	mov si,[bp+32]
+	add si,dx
 	fstp [dword ptr si]
 	fild [word ptr di]
+	fst [dword ptr di]
+	mov di,[bp+34]
+	add di,dx
 	fstp [dword ptr di]
 
-	add si,4
-	add di,4
+	add dx,4
 	add ax,6
 	loop x_position_loop
 	pop cx
-	mov ax,dx
+	mov ax,[bp+36]
 	sub bx,6
 	loop y_position_loop
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;spring section;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -559,7 +571,7 @@ proc make_squre
 	pop bx
 	pop ax
 	pop bp
-	ret 28
+	ret 34
 endp make_squre
 
 ;=====================================================================================================
@@ -633,6 +645,8 @@ endp draw
 ;[bp+26] = spring1 the list of springs in diffrent dirrection
 ;[bp+28] = offset of total number of points times 4
 ;[bp+30] = offset of total number of points
+;[bp+32] = offset of pxp
+;[bp+34] = offset of pyp
 proc init_of_object
 	push bp
 	mov bp,sp
@@ -654,6 +668,9 @@ proc init_of_object
 	mov di,[bp+28]
 	mov [di],ax
 
+	push 0
+	push [bp+34]
+	push [bp+32]
 	push [bp+30]
 	push [bp+28]
 	push [bp+26]
@@ -678,7 +695,7 @@ proc init_of_object
 	pop bx
 	pop ax
 	pop bp
-	ret 28
+	ret 32
 endp init_of_object
 ;=====================================================================================================
 proc init_manu
@@ -716,6 +733,9 @@ start:
 
 	call init_manu
 
+
+	push offset pyp
+	push offset pxp
 	push offset length_of_points
 	push offset length_of_points_times_4
 	push offset spring1
