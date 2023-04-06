@@ -9,6 +9,9 @@ DATASEG
 	temp_float dd 0
 	mass dd 0.1
 	gravity dd 10.0
+;--------------------------
+	step_flag dw 0
+	
 
 	xp dd 0
 	dd 100 dup(?)
@@ -47,6 +50,11 @@ DATASEG
 	dw 100 dup(0ffffh)
 	spring8 dw 0ffffh
 	dw 100 dup(0ffffh)
+
+	left_x dw 10 dup(0)
+	left_y dw 10 dup(0)
+	right_x dw 10 dup(0)
+	right_y dw 10 dup(0)
 
 	massage_opening db '                                            c                                  ',10,13
 	db '                                            c                                  ',10,13
@@ -753,6 +761,69 @@ proc init_manu
 	ret
 endp init_manu
 ;=====================================================================================================
+proc check_input
+	push bp
+	mov bp,sp
+	push ax
+	push bx
+	push cx
+	push dx
+	push si
+	push di
+
+
+	pop di
+	pop si
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	pop bp
+	ret
+endp check_input
+;=====================================================================================================
+proc math
+	push bp
+	mov bp,sp
+	push ax
+	push bx
+	push cx
+	push dx
+	push si
+	push di
+
+
+	pop di
+	pop si
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	pop bp
+	ret
+endp math
+;=====================================================================================================
+proc check_collision
+	push bp
+	mov bp,sp
+	push ax
+	push bx
+	push cx
+	push dx
+	push si
+	push di
+
+
+	pop di
+	pop si
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	pop bp
+	ret
+endp check_collision
+;=====================================================================================================
 start:
 	mov ax, @data
 	mov ds, ax
@@ -760,6 +831,7 @@ start:
     mov es, ax
 ; --------------------------
 
+;start_again_the_main_loop:
 	call init_manu
 
 
@@ -782,6 +854,12 @@ start:
 	call init_of_object
 
 ;main_lop:
+
+	call check_input
+
+	call math
+
+	call check_collision
 
 	push offset yp
 	push offset xp
