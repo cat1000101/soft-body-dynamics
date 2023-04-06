@@ -724,9 +724,6 @@ proc init_manu
 	int 21h
 
 	manu_input_loop:
-	mov ah,1
-	int 16h
-	jnz manu_input_loop
 	mov ah,0
 	int 16h
 
@@ -739,10 +736,6 @@ proc init_manu
 	mov ah,9
 	int 21h
 
-	manu_exit_loop:
-	mov ah,1
-	int 16h
-	jnz manu_exit_loop
 	mov ah,0
 	int 16h
 	manu_exit:
