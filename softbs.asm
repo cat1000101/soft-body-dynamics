@@ -57,57 +57,89 @@ DATASEG
 	right_y dw 10 dup(0)
 
 	massage_opening db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13
-	db '                                            c                                  ',10,13,'$'
+					db '                                            c                                  ',10,13
+					db '                                            c                                  ',10,13
+					db '                                            c                                  ',10,13
+					db '                                            c                                  ',10,13
+					db '                                            c                                  ',10,13
+					db '                                            c                                  ',10,13
+					db '                                            c                                  ',10,13
+					db '                                            c                                  ',10,13
+					db '                                            c                                  ',10,13
+					db '                                            c                                  ',10,13
+					db '                                            c                                  ',10,13
+					db '                                            c                                  ',10,13
+					db '                                            c                                  ',10,13
+					db '                                            c                                  ',10,13
+					db '                                            c                                  ',10,13
+					db '                                            c                                  ',10,13
+					db '                                            c                                  ',10,13
+					db '                                            c                                  ',10,13
+					db '                                            c                                  ',10,13
+					db '                                            c                                  ',10,13
+					db '                                            c                                  ',10,13
+					db '                                            c                                  ',10,13,'$'
 	
 	massage_info db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13
-	db '                                            d                                  ',10,13,'$'
+				 db '                                            d                                  ',10,13
+				 db '                                            d                                  ',10,13
+				 db '                                            d                                  ',10,13
+				 db '                                            d                                  ',10,13
+				 db '                                            d                                  ',10,13
+				 db '                                            d                                  ',10,13
+				 db '                                            d                                  ',10,13
+				 db '                                            d                                  ',10,13
+				 db '                                            d                                  ',10,13
+				 db '                                            d                                  ',10,13
+				 db '                                            d                                  ',10,13
+				 db '                                            d                                  ',10,13
+				 db '                                            d                                  ',10,13
+				 db '                                            d                                  ',10,13
+				 db '                                            d                                  ',10,13
+				 db '                                            d                                  ',10,13
+				 db '                                            d                                  ',10,13
+				 db '                                            d                                  ',10,13
+				 db '                                            d                                  ',10,13
+				 db '                                            d                                  ',10,13
+				 db '                                            d                                  ',10,13
+				 db '                                            d                                  ',10,13,'$'
+
+	getting_input_massage db '                                        ',10,13
+						  db '                                        ',10,13
+						  db '                                        ',10,13
+						  db '                                        ',10,13
+						  db '                                        ',10,13
+						  db '  please press two numbers between 2-9  ',10,13
+						  db '     this will be your object size      ',10,13
+						  db '                                        ',10,13
+						  db '                                        ',10,13
+						  db '                                        ',10,13
+						  db '                                        ',10,13
+						  db '                                        ',10,13,'$'
 
 
 ; --------------------------
 ;hello world
 CODESEG
+;=====================================================================================================
+proc clear_screen
+	push ax
+	push bx
+	push cx
+
+	mov cx,0FA00h
+	xor ax,ax
+	xor bx,bx
+	clear_screen_loop:
+	mov [es:bx],al
+	inc bx
+	loop clear_screen_loop
+
+	pop cx
+	pop bx
+	pop ax
+	ret
+endp clear_screen
 ;=====================================================================================================
 ;[bp+12] = number of points in the y direction
 ;[bp+10] = total number of points times 4
@@ -578,63 +610,6 @@ proc make_squre
 	pop bp
 	ret 34
 endp make_squre
-
-;=====================================================================================================
-;[bp+10] = yp offset
-;[bp+8] = xp offset
-;[bp+6] = temp_integer
-;[bp+4] = length of points
-proc draw
-	push bp
-	mov bp,sp
-
-	push ax
-	push bx
-	push cx
-	push dx
-	push si
-	push di
-	; --------------------------
-	mov cx,[bp+4]
-	mov di,[bp+8]
-	mov si,[bp+10]
-	draw_loop:
-	xor ax,ax
-	xor bx,bx
-	xor dx,dx
-	fld [dword ptr si]
-	frndint
-	mov bx,[bp+6]
-	fistp [word ptr bx]
-	mov bx,[word ptr bx]
-
-	mov ax,200
-	sub ax,bx
-	mov bx,320
-	mul bx
-	xor bx,bx
-	fld [dword ptr di]
-	frndint
-	mov bx,[bp+6]
-	fistp [word ptr bx]
-	mov bx,[word ptr bx]
-	add bx,ax
-	mov [byte ptr es:bx],4
-	add di,4
-	add si,4
-	loop draw_loop
-
-
-	; --------------------------
-	pop di
-	pop si
-	pop dx
-	pop cx
-	pop bx
-	pop ax
-	pop bp
-	ret 8
-endp draw
 ;=====================================================================================================
 ;[bp+4] = x numbers of points in the x direction
 ;[bp+6] = y numbers of points in the y direction
@@ -652,7 +627,7 @@ endp draw
 ;[bp+30] = offset of total number of points
 ;[bp+32] = offset of pxp
 ;[bp+34] = offset of pyp
-proc init_of_object
+proc init_of_objects
 	push bp
 	mov bp,sp
 	push ax
@@ -662,10 +637,26 @@ proc init_of_object
 	push si
 	push di
 
+	mov dx,offset getting_input_massage
+	mov ah,9
+	int 21h
+
+
+	mov ah,0
+	int 16h
+	sub al,30h
+	mov ah,0
+	mov [bp+4],ax
+	mov bl,al
+	mov ah,0
+	int 16h
+	mov ah,0
+	sub al,30h
+	mov [bp+6],ax
+
+	call clear_screen
+
 	mov di,[bp+30]
-	xor ax,ax
-	mov al,5
-	mov bl,5
 	mul bl
 	mov [di],ax
 	mov bx,4
@@ -688,8 +679,8 @@ proc init_of_object
 	push [bp+12]
 	push [bp+10]
 	push [bp+8]
-	push 5 ;y
-	push 5 ;x
+	push [bp+6]
+	push [bp+4]
 	call make_squre
 
 
@@ -701,7 +692,7 @@ proc init_of_object
 	pop ax
 	pop bp
 	ret 32
-endp init_of_object
+endp init_of_objects
 ;=====================================================================================================
 proc init_manu
 	push bp
@@ -817,6 +808,62 @@ proc check_collision
 	ret
 endp check_collision
 ;=====================================================================================================
+;[bp+10] = yp offset
+;[bp+8] = xp offset
+;[bp+6] = temp_integer
+;[bp+4] = length of points
+proc draw
+	push bp
+	mov bp,sp
+
+	push ax
+	push bx
+	push cx
+	push dx
+	push si
+	push di
+	; --------------------------
+	mov cx,[bp+4]
+	mov di,[bp+8]
+	mov si,[bp+10]
+	draw_loop:
+	xor ax,ax
+	xor bx,bx
+	xor dx,dx
+	fld [dword ptr si]
+	frndint
+	mov bx,[bp+6]
+	fistp [word ptr bx]
+	mov bx,[word ptr bx]
+
+	mov ax,200
+	sub ax,bx
+	mov bx,320
+	mul bx
+	xor bx,bx
+	fld [dword ptr di]
+	frndint
+	mov bx,[bp+6]
+	fistp [word ptr bx]
+	mov bx,[word ptr bx]
+	add bx,ax
+	mov [byte ptr es:bx],4
+	add di,4
+	add si,4
+	loop draw_loop
+
+
+	; --------------------------
+	pop di
+	pop si
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	pop bp
+	ret 8
+endp draw
+;=====================================================================================================
 start:
 	mov ax, @data
 	mov ds, ax
@@ -842,9 +889,9 @@ start:
 	push offset spring8
 	push offset yp
 	push offset xp
-	push 5
-	push 5
-	call init_of_object
+	push 0
+	push 0
+	call init_of_objects
 
 ;main_lop:
 
