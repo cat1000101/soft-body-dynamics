@@ -480,8 +480,8 @@ endp spring8_proc
 ;=====================================================================================================
 ;[bp+4] = x numbers of points in the x direction
 ;[bp+6] = y numbers of points in the y direction
-;[bp+8] = x_position in dataseg
-;[bp+10] = y_position in dataseg
+;[bp+8] = offset of x_position in dataseg
+;[bp+10] = offset of y_position in dataseg
 ;[bp+12] = spring8 the list of springs in diffrent dirrection
 ;[bp+14] = spring7 the list of springs in diffrent dirrection
 ;[bp+16] = spring6 the list of springs in diffrent dirrection
@@ -611,23 +611,85 @@ proc make_squre
 	ret 34
 endp make_squre
 ;=====================================================================================================
-;[bp+4] = x numbers of points in the x direction
-;[bp+6] = y numbers of points in the y direction
-;[bp+8] = x_position in dataseg
-;[bp+10] = y_position in dataseg
-;[bp+12] = spring8 the list of springs in diffrent dirrection
-;[bp+14] = spring7 the list of springs in diffrent dirrection
-;[bp+16] = spring6 the list of springs in diffrent dirrection
-;[bp+18] = spring5 the list of springs in diffrent dirrection
-;[bp+20] = spring4 the list of springs in diffrent dirrection
-;[bp+22] = spring3 the list of springs in diffrent dirrection
-;[bp+24] = spring2 the list of springs in diffrent dirrection
-;[bp+26] = spring1 the list of springs in diffrent dirrection
-;[bp+28] = offset of total number of points times 4
-;[bp+30] = offset of total number of points
-;[bp+32] = offset of pxp
-;[bp+34] = offset of pyp
-proc init_of_objects
+;[bp+4] = offset of left_y
+;[bp+6] = offset of left_x
+;[bp+8] = offset of right_y
+;[bp+10] = offset of right_x
+proc collision_mouse_maker
+	push bp
+	mov bp,sp
+	push ax
+	push bx
+	push cx
+	push dx
+	push si
+	push di
+
+
+	xor dx,dx
+	xor si,si
+
+	mov ax,0h
+	int 33h
+	mov ax,1h
+	int 33h
+
+	mouse_loop:
+;	mov ah,1
+;	int 16h
+;	jnz no_input_in_mouse_loop
+;	mov ah,0
+;	int 16h
+;	cmp al,27
+;	je mouse_loop_exit
+;	no_input_in_mouse_loop:
+	mov ax,3h
+	int 33h
+	cmp bx, 01h
+	jne mouse_loop
+	shr cx,1
+
+	mov bh,0h
+	mov al,4
+	mov ah,0Ch
+	int 10h
+
+	inc si
+	mov di,si
+	shr di,1
+	jnc this_is_the_first
+
+	mov bx,[bp+6]
+	mov [bx],cx
+	mov bx,[bp+4]
+	mov [bx],dx
+	this_is_the_first:
+	mov bx,[bp+10]
+	mov [bx],cx
+	mov bx,[bp+8]
+	mov [bx],dx
+
+	cmp si,5
+	je mouse_loop_exit
+	jmp mouse_loop
+	mouse_loop_exit:
+	mov ax,2
+	int 33h
+
+
+	pop di
+	pop si
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	pop bp
+	ret 8
+endp collision_mouse_maker
+;=====================================================================================================
+;[bp+4] = x dirrection
+;[bp+6] = y dirrection
+proc getting_size_of_object
 	push bp
 	mov bp,sp
 	push ax
@@ -641,23 +703,79 @@ proc init_of_objects
 	mov ah,9
 	int 21h
 
-
+	getting_size_of_object_loop1:
 	mov ah,0
 	int 16h
 	sub al,30h
+	cmp al,10
+	jnb getting_size_of_object_loop1
 	mov ah,0
 	mov [bp+4],ax
-	mov bl,al
+	getting_size_of_object_loop2:
 	mov ah,0
 	int 16h
-	mov ah,0
 	sub al,30h
+	cmp al,10
+	jnb getting_size_of_object_loop2
+	mov ah,0
 	mov [bp+6],ax
 
 	call clear_screen
 
+	pop di
+	pop si
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	pop bp
+	ret
+endp getting_size_of_object
+;=====================================================================================================
+;[bp+4] = x numbers of points in the x direction
+;[bp+6] = y numbers of points in the y direction
+;[bp+8] = offset of x_position in dataseg
+;[bp+10] = offset of y_position in dataseg
+;[bp+12] = spring8 the list of springs in diffrent dirrection
+;[bp+14] = spring7 the list of springs in diffrent dirrection
+;[bp+16] = spring6 the list of springs in diffrent dirrection
+;[bp+18] = spring5 the list of springs in diffrent dirrection
+;[bp+20] = spring4 the list of springs in diffrent dirrection
+;[bp+22] = spring3 the list of springs in diffrent dirrection
+;[bp+24] = spring2 the list of springs in diffrent dirrection
+;[bp+26] = spring1 the list of springs in diffrent dirrection
+;[bp+28] = offset of total number of points times 4
+;[bp+30] = offset of total number of points
+;[bp+32] = offset of pxp
+;[bp+34] = offset of pyp
+;[bp+36] = offset of left_y
+;[bp+38] = offset of left_x
+;[bp+40] = offset of right_y
+;[bp+42] = offset of right_x
+proc init_of_objects
+	push bp
+	mov bp,sp
+	push ax
+	push bx
+	push cx
+	push dx
+	push si
+	push di
+	; --------------------------getting the collision objects
+;	push [bp+42]
+;	push [bp+40]
+;	push [bp+38]
+;	push [bp+36]
+;	call collision_mouse_maker
+	; -------------------------- getting the size of the object
+	push 0
+	push 0
+	call getting_size_of_object
+	pop bx
+	pop ax
+	; --------------------------making the object
 	mov di,[bp+30]
-	mul bl
+	mul bx
 	mov [di],ax
 	mov bx,4
 	mul bx
@@ -682,8 +800,7 @@ proc init_of_objects
 	push [bp+6]
 	push [bp+4]
 	call make_squre
-
-
+	; --------------------------
 	pop di
 	pop si
 	pop dx
@@ -691,7 +808,7 @@ proc init_of_objects
 	pop bx
 	pop ax
 	pop bp
-	ret 32
+	ret 40
 endp init_of_objects
 ;=====================================================================================================
 proc init_manu
@@ -874,7 +991,10 @@ start:
 ;start_again_the_main_loop:
 	call init_manu
 
-
+	push offset right_x
+	push offset right_y
+	push offset left_x
+	push offset left_y
 	push offset pyp
 	push offset pxp
 	push offset length_of_points
