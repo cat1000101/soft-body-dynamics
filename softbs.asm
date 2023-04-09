@@ -51,10 +51,10 @@ DATASEG
 	spring8 dw 0ffffh
 	dw 100 dup(0ffffh)
 
-	left_x dw 10 dup(0)
-	left_y dw 10 dup(0)
-	right_x dw 10 dup(0)
-	right_y dw 10 dup(0)
+	left_x dw 100,200;10 dup(0)
+	left_y dw 100,80;10 dup(0)
+	right_x dw 200,300;10 dup(0)
+	right_y dw 70,50;10 dup(0)
 
 	massage_opening db '                                            c                                  ',10,13
 					db '                                            c                                  ',10,13
@@ -121,6 +121,59 @@ DATASEG
 ; --------------------------
 ;hello world
 CODESEG
+;=====================================================================================================
+;[bp+4] = offset of left_y
+;[bp+6] = offset of left_x
+;[bp+8] = offset of right_y
+;[bp+10] = offset of right_x
+call draw_square
+	push bp
+	mov bp,sp
+	push ax
+	push bx
+	push si
+	push di
+	push dx
+
+
+
+	pop dx
+	pop di
+	pop si
+	pop bx
+	pop ax
+	pop bp
+	ret
+endp draw_square
+;=====================================================================================================
+;[bp+4] = amount of cycles
+proc timer
+	push bp
+	mov bp,sp
+	push es
+	push ax
+	push bx
+	push cx
+
+	mov bx,6ch
+	mov cx,[bp+4]
+
+	mov ax, 40h
+	mov es, ax
+
+	timer_loop:
+	mov ax, [es:bx]
+	FirstTick:
+	cmp ax, [es:bx]
+	je FirstTick
+	loop timer_loop
+
+	pop cx
+	pop bx
+	pop ax
+	pop es
+	ret 2
+endp timer
 ;=====================================================================================================
 proc clear_screen
 	push ax
@@ -635,44 +688,33 @@ proc collision_mouse_maker
 	int 33h
 
 	mouse_loop:
-;	mov ah,1
-;	int 16h
-;	jnz no_input_in_mouse_loop
-;	mov ah,0
-;	int 16h
-;	cmp al,27
-;	je mouse_loop_exit
-;	no_input_in_mouse_loop:
-	mov ax,3h
+	mov ax,5h
 	int 33h
 	cmp bx, 01h
 	jne mouse_loop
 	shr cx,1
 
-	mov bh,0h
-	mov al,4
-	mov ah,0Ch
-	int 10h
-
-	inc si
-	mov di,si
-	shr di,1
-	jnc this_is_the_first
-
 	mov bx,[bp+6]
 	mov [bx],cx
 	mov bx,[bp+4]
 	mov [bx],dx
-	this_is_the_first:
+
+	push 4
+	call timer
+
+	mouse_loop2:
+	mov ax,5h
+	int 33h
+	cmp bx, 01h
+	jne mouse_loop2
+	shr cx,1
+
 	mov bx,[bp+10]
 	mov [bx],cx
 	mov bx,[bp+8]
 	mov [bx],dx
 
-	cmp si,5
-	je mouse_loop_exit
-	jmp mouse_loop
-	mouse_loop_exit:
+
 	mov ax,2
 	int 33h
 
@@ -709,14 +751,17 @@ proc getting_size_of_object
 	sub al,30h
 	cmp al,10
 	jnb getting_size_of_object_loop1
+
 	mov ah,0
 	mov [bp+4],ax
+
 	getting_size_of_object_loop2:
 	mov ah,0
 	int 16h
 	sub al,30h
 	cmp al,10
 	jnb getting_size_of_object_loop2
+
 	mov ah,0
 	mov [bp+6],ax
 
@@ -773,6 +818,9 @@ proc init_of_objects
 	call getting_size_of_object
 	pop bx
 	pop ax
+
+	mov [bp+4],bx
+	mov [bp+6],ax
 	; --------------------------making the object
 	mov di,[bp+30]
 	mul bx
