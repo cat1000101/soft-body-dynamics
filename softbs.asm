@@ -21,8 +21,8 @@ DATASEG
 	dd 100 dup(0)
 	xv dd 0
 	dd 100 dup(0)
-	xa dd 0
-	dd 100 dup(0)
+;	xa dd 0
+;	dd 100 dup(0)
 	yp dd 0
 	dd 100 dup(?)
 	pyp dd 0
@@ -31,8 +31,8 @@ DATASEG
 	dd 100 dup(0)
 	yv dd 0
 	dd 100 dup(0)
-	ya dd 0
-	dd 100 dup(0)
+;	ya dd 0
+;	dd 100 dup(0)
 
 	spring1 dw 0ffffh
 	dw 100 dup(0ffffh)
@@ -126,7 +126,7 @@ CODESEG
 ;[bp+6] = offset of left_x
 ;[bp+8] = offset of right_y
 ;[bp+10] = offset of right_x
-call draw_square
+proc draw_square
 	push bp
 	mov bp,sp
 	push ax
@@ -931,6 +931,27 @@ proc check_input
 	ret
 endp check_input
 ;=====================================================================================================
+;[bp+4] = offset of length_of_points
+;[bp+6] = offset of xp
+;[bp+8] = offset of yp
+;[bp+10] = offset of pxp
+;[bp+12] = offset of pyp
+;[bp+14] = offset of spring8
+;[bp+16] = offset of spring7
+;[bp+18] = offset of spring6
+;[bp+20] = offset of spring5
+;[bp+22] = offset of spring4
+;[bp+24] = offset of spring3
+;[bp+26] = offset of spring2
+;[bp+28] = offset of spring1
+;[bp+30] = offset of temp_integer
+;[bp+32] = offset of temp_float
+;[bp+34] = offset of mass
+;[bp+36] = offset of gravity
+;[bp+38] = offset of xf
+;[bp+40] = offset of xv
+;[bp+42] = offset of yf
+;[bp+44] = offset of yv
 proc math
 	push bp
 	mov bp,sp
@@ -949,7 +970,7 @@ proc math
 	pop bx
 	pop ax
 	pop bp
-	ret
+	ret 42
 endp math
 ;=====================================================================================================
 proc check_collision
@@ -1065,6 +1086,27 @@ start:
 
 	call check_input
 
+	push offset yv
+	push offset yf
+	push offset xv
+	push offset xf
+	push offset temp_integer
+	push offset temp_float
+	push offset mass
+	push offset gravity
+	push offset spring1
+	push offset spring2
+	push offset spring3
+	push offset spring4
+	push offset spring5
+	push offset spring6
+	push offset spring7
+	push offset spring8
+	push offset pyp
+	push offset pxp
+	push offset yp
+	push offset xp
+	push offset length_of_points
 	call math
 
 	call check_collision
