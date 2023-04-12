@@ -3,10 +3,10 @@ MODEL small
 STACK 100h
 DATASEG
 ; --------------------------
+	temp_float dd 0
 	length_of_points dw 0
 	length_of_points_times_4 dw 0
 	temp_integer dw 0
-	temp_float dd 0
 	mass dd 0.1
 	gravity dd 10.0
 	time_intervuls dd 0.55
@@ -912,27 +912,6 @@ proc init_manu
 	ret
 endp init_manu
 ;=====================================================================================================
-proc check_input
-	push bp
-	mov bp,sp
-	push ax
-	push bx
-	push cx
-	push dx
-	push si
-	push di
-
-
-	pop di
-	pop si
-	pop dx
-	pop cx
-	pop bx
-	pop ax
-	pop bp
-	ret
-endp check_input
-;=====================================================================================================
 ;/-(ax-bx)^2+(ay-by)^2
 ;[bp+4] = offset ax
 ;[bp+6] = offset ay
@@ -965,11 +944,11 @@ proc distance_equation
 	fmul [dword ptr di]
 
 	;ads the two numbers together and square root them and store in the result
-	fadd 
-	fsqrt
 	mov si,[bp+12]
 	fstp [dword ptr si]
-	ftsp [dword ptr di]
+	fadd [dword ptr si]
+	fsqrt
+	fstp [dword ptr si]
 
 	pop di
 	pop si
@@ -982,9 +961,9 @@ endp distance_equation
 ;[bp+6] = offset v
 ;[bp+8] = offset t
 ;[bp+10] = offset a
-;[bp+14] = offset t^2/2
-;[bp+12] = offset result
-;[bp+14] = offset temp_float
+;[bp+12] = offset t^2/2
+;[bp+14] = offset result
+;[bp+16] = offset temp_float
 proc new_position_equation
 	push bp
 	mov bp,sp
@@ -1001,11 +980,19 @@ proc new_position_equation
 	mov si,[bp+4]
 	fadd [dword ptr si]
 
+	fst [dword ptr temp_float]
+
 	;mul a and t^2/2 and add the previos calc to this
 	mov si,[bp+10]
 	fld [dword ptr si]
-	mov si,[bp+14]
+	mov si,[bp+12]
 	fmul [dword ptr si]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	fst [dword ptr temp_float]
 
 	fadd
 	mov si,[bp+12]
@@ -1025,34 +1012,67 @@ endp new_position_equation
 ;[bp+10] = offset of xv
 ;[bp+12] = offset of yf
 ;[bp+14] = offset of yv
-;[bp+16] = offset of temp_float
-
-
-;;;;;[bp+4] = offset x
-;;;;;[bp+6] = offset v
-;;;;;[bp+8] = offset t
-;;;;;[bp+10] = offset a
-;;;;;[bp+14] = offset t^2/2
-;;;;;[bp+12] = offset result
-;;;;;[bp+14] = offset temp_float
+;[bp+16] = offset of xa
+;[bp+18] = offset of ya
+;[bp+20] = offset of time_intervals
+;[bp+22] = offset of time_intervals squared div 2
+;[bp+24] = offset of length of points
+;[bp+26] = offset of temp_float
 proc new_position
 	push bp
 	mov bp,sp
 	push ax
-	push bx
 	push cx
-	push dx
 	push si
-	push di
+
+	mov si,[bp+24]
+	mov cx,[si]
+	xor ax,ax
+	new_position_loop:
+	push [bp+26]
+	mov si,[bp+4]
+	add si,ax
+	push si
+	push [bp+22]
+	mov si,[bp+16]
+	add si,ax
+	push si
+	push [bp+20]
+	mov si,[bp+10]
+	add si,ax
+	push si
+	mov si,[bp+4]
+	add si,ax
+	push si
+	call new_position_equation
 
 
-	pop di
+	push [bp+26]
+	mov si,[bp+6]
+	add si,ax
+	push si
+	push [bp+22]
+	mov si,[bp+18]
+	add si,ax
+	push si
+	push [bp+20]
+	mov si,[bp+14]
+	add si,ax
+	push si
+	mov si,[bp+6]
+	add si,ax
+	push si
+	call new_position_equation
+
+	add ax,4
+	loop new_position_loop
+
+
 	pop si
-	pop dx
 	pop cx
-	pop bx
 	pop ax
 	pop bp
+	ret 24
 endp new_position
 ;=====================================================================================================
 ;v+a*t
@@ -1080,6 +1100,58 @@ proc new_velocity_equation
 	ret 8
 endp new_velocity_equation
 ;=====================================================================================================
+;[bp+4] = offset of xv
+;[bp+6] = offset of yv
+;[bp+8] = offset of xa
+;[bp+10] = offset of ya
+;[bp+12] = offset of time_intervals
+;[bp+14] = offset of length of points
+proc new_velocity
+	push bp
+	mov bp,sp
+	push ax
+	push cx
+	push si
+
+	mov si,[bp+14]
+	mov cx,[si]
+	xor ax,ax
+	new_velocity_loop:
+	mov si,[bp+4]
+	add si,ax
+	push si
+	mov si,[bp+8]
+	add si,ax
+	push si
+	push [bp+12]
+	mov si,[bp+4]
+	add si,ax
+	push si
+	call new_velocity_equation
+
+	mov si,[bp+6]
+	add si,ax
+	push si
+	mov si,[bp+10]
+	add si,ax
+	push si
+	push [bp+12]
+	mov si,[bp+6]
+	add si,ax
+	push si
+	call new_velocity_equation
+
+	add ax,4
+	loop new_velocity_loop
+
+
+	pop si
+	pop cx
+	pop ax
+	pop bp
+	ret
+endp new_velocity
+;=====================================================================================================
 ;[bp+4] = offset of xf
 ;[bp+6] = offset of yf
 ;[bp+8] = offset of length_of_points
@@ -1089,18 +1161,22 @@ proc reset_forces
 	push si
 	push di
 	push cx
+	push ax
 
 	mov si,[bp+4]
 	mov di,[bp+8]
 	mov cx,[di]
+	shl cx,1
 	mov di,[bp+6]
+	xor ax,ax
 	reset_forces_loop:
-	mov [dword ptr di],0
-	mov [dword ptr si],0
-	add si,4
-	add di,4
+	mov [di],ax
+	mov [si],ax
+	add si,2
+	add di,2
 	loop reset_forces_loop
 
+	pop ax
 	pop cx
 	pop di
 	pop si
@@ -1177,10 +1253,10 @@ endp calc_acceleration
 ;[bp+24] = offset of spring3
 ;[bp+26] = offset of spring2
 ;[bp+28] = offset of spring1
-;[bp+30] = offset of temp_integer
-;[bp+32] = offset of temp_float
-;[bp+34] = offset of mass
-;[bp+36] = offset of gravity
+;[bp+30] = offset of gravity
+;[bp+32] = offset of mass
+;[bp+34] = offset of temp_integer
+;[bp+36] = offset of temp_float
 ;[bp+38] = offset of xf
 ;[bp+40] = offset of xv
 ;[bp+42] = offset of yf
@@ -1188,6 +1264,7 @@ endp calc_acceleration
 ;[bp+46] = offset of time_intervuls squared divided by 2
 ;[bp+48] = offset of xa
 ;[bp+50] = offset of ya
+;[bp+52] = offset of time_intervuls
 proc math
 	push bp
 	mov bp,sp
@@ -1205,13 +1282,35 @@ proc math
 
 
 	push [bp+4]
-	push [bp+34]
+	push [bp+32]
 	push [bp+42]
 	push [bp+38]
 	push [bp+50]
 	push [bp+48]
 	call calc_acceleration
 
+
+	push [bp+36]
+	push [bp+4]
+	push [bp+46]
+	push [bp+52]
+	push [bp+50]
+	push [bp+48]
+	push [bp+44]
+	push [bp+42]
+	push [bp+40]
+	push [bp+38]
+	push [bp+8]
+	push [bp+6]
+	call new_position
+
+	push [bp+4]
+	push [bp+52]
+	push [bp+50]
+	push [bp+48]
+	push [bp+44]
+	push [bp+40]
+	call new_velocity
 
 	pop di
 	pop si
@@ -1220,7 +1319,7 @@ proc math
 	pop bx
 	pop ax
 	pop bp
-	ret 48
+	ret 50
 endp math
 ;=====================================================================================================
 proc check_collision
@@ -1243,6 +1342,27 @@ proc check_collision
 	pop bp
 	ret
 endp check_collision
+;=====================================================================================================
+proc check_input
+	push bp
+	mov bp,sp
+	push ax
+	push bx
+	push cx
+	push dx
+	push si
+	push di
+
+
+	pop di
+	pop si
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	pop bp
+	ret
+endp check_input
 ;=====================================================================================================
 ;[bp+10] = yp offset
 ;[bp+8] = xp offset
@@ -1337,6 +1457,7 @@ start:
 	call check_input
 
 
+	push offset time_intervuls
 	push offset ya
 	push offset xa
 	push offset time_intervuls_squared_div_2
