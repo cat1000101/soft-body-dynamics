@@ -970,7 +970,7 @@ proc new_position_equation
 	push si
 	push di
 
-	mov di,[bp+14];the temp float 
+	mov di,[bp+16];the temp float 
 	
 	;mul v and t and add x
 	mov si,[bp+6]
@@ -980,18 +980,14 @@ proc new_position_equation
 	mov si,[bp+4]
 	fadd [dword ptr si]
 
-	fst [dword ptr temp_float]
+	fst [dword ptr di]
 
 	;mul a and t^2/2 and add the previos calc to this
 	mov si,[bp+10]
 	fld [dword ptr si]
 	mov si,[bp+12]
 	fmul [dword ptr si]
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 	fst [dword ptr temp_float]
 
 	fadd
@@ -1003,7 +999,7 @@ proc new_position_equation
 	pop di
 	pop si
 	pop bp
-	ret 12
+	ret 14
 endp new_position_equation
 ;=====================================================================================================
 ;[bp+4] = offset of xp
@@ -1149,7 +1145,7 @@ proc new_velocity
 	pop cx
 	pop ax
 	pop bp
-	ret
+	ret 12
 endp new_velocity
 ;=====================================================================================================
 ;[bp+4] = offset of xf
