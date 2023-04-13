@@ -1,3 +1,4 @@
+.286
 IDEAL
 MODEL small
 STACK 100h
@@ -6,11 +7,19 @@ DATASEG
 	temp_float dd 0
 	length_of_points dw 0
 	length_of_points_times_4 dw 0
-	temp_integer dw 0
+	temp_integer dd 0
 	mass dd 0.1
 	gravity dd -10.0
+	knormal dd 6
+	dknormal dd 8.4852809906005859375
+	k dd -1
 	time_intervuls dd 0.55
 	time_intervuls_squared_div_2 dd 0.15125
+;--------------------------
+	temp_float1 dd 0
+	temp_float2 dd 0
+	temp_float3 dd 0
+	x_temp dd 0
 ;--------------------------
 	step_flag dw 0
 	
@@ -887,49 +896,6 @@ proc init_manu
 	ret
 endp init_manu
 ;=====================================================================================================
-;/-(ax-bx)^2+(ay-by)^2
-;[bp+4] = offset ax
-;[bp+6] = offset ay
-;[bp+8] = offset bx
-;[bp+10] = offset by
-;[bp+12] = offset result
-;[bp+14] = offset temp_float
-proc distance_equation
-	push bp
-	mov bp,sp
-	push si
-	push di
-
-	mov di,[bp+14];the temp float 
-
-	;substract ax-bx and multiply by itself
-	mov si,[bp+4]
-	fld [dword ptr si]
-	mov si,[bp+8]
-	fsub [dword ptr si]
-	fst [dword ptr di]
-	fmul [dword ptr di]
-
-	;substract ay-by and multiply by itself
-	mov si,[bp+6]
-	fld [dword ptr si]
-	mov si,[bp+10]
-	fsub [dword ptr si]
-	fst [dword ptr di]
-	fmul [dword ptr di]
-
-	;ads the two numbers together and square root them and store in the result
-	fadd
-	fsqrt
-	mov si,[bp+12]
-	fstp [dword ptr si]
-
-	pop di
-	pop si
-	pop bp
-	ret 12
-endp distance_equation
-;=====================================================================================================
 ;x+v*t+a*t^2/2
 ;[bp+4] = offset x
 ;[bp+6] = offset v
@@ -1234,12 +1200,232 @@ proc gravity_force
 	ret 10
 endp gravity_force
 ;=====================================================================================================
+;[bp+4] = offset of xp
+;[bp+6] = offset of yp
+;[bp+8] = offset of pxp
+;[bp+10] = offset of pyp
+;[bp+12] = offset of length_of_points
 proc reset_place_values
+	push bp
+	mov bp,sp
+	push ax
+	push cx
+	push si
 
+	xor ax,ax
+	mov si,[bp+12]
+	mov cx,[si]
+	reset_place_values_loop:
+	mov si,[bp+4]
+	add si,ax
+	fld [dword ptr si]
+	mov si,[bp+8]
+	add si,ax
+	fstp [dword ptr si]
 
+	mov si,[bp+6]
+	add si,ax
+	fld [dword ptr si]
+	mov si,[bp+10]
+	add si,ax
+	fstp [dword ptr si]
 
-	ret
+	add ax,4
+	loop reset_place_values_loop
+
+	pop si
+	pop cx
+	pop ax
+	pop bp
+	ret 10
 endp reset_place_values
+;=====================================================================================================
+;/-(ax-bx)^2+(ay-by)^2
+;[bp+4] = offset ax
+;[bp+6] = offset ay
+;[bp+8] = offset bx
+;[bp+10] = offset by
+;[bp+12] = offset result
+;[bp+14] = offset temp_float
+proc distance_equation
+	push bp
+	mov bp,sp
+	push si
+	push di
+
+	mov di,[bp+14];the temp float 
+
+	;substract ax-bx and multiply by itself
+	mov si,[bp+4]
+	fld [dword ptr si]
+	mov si,[bp+8]
+	fsub [dword ptr si]
+	fst [dword ptr di]
+	fmul [dword ptr di]
+
+	;substract ay-by and multiply by itself
+	mov si,[bp+6]
+	fld [dword ptr si]
+	mov si,[bp+10]
+	fsub [dword ptr si]
+	fst [dword ptr di]
+	fmul [dword ptr di]
+
+	;ads the two numbers together and square root them and store in the result
+	fadd
+	fsqrt
+	mov si,[bp+12]
+	fstp [dword ptr si]
+
+	pop di
+	pop si
+	pop bp
+	ret 12
+endp distance_equation
+;=====================================================================================================
+;F=-K*X (k is already negative) st(2)
+;X=distance - nk
+;cx = bx-ax st(0)
+;cy = by-ay st(1)
+;[bp+4] = offset ax
+;[bp+6] = offset ay
+;[bp+8] = offset bx
+;[bp+10] = offset by
+;[bp+12] = offset K
+;[bp+14] = offset knormal
+;[bp+16] = offset temp_float
+;[bp+18] = offset of C-+?
+;[bp+20] = ;offset of fx
+;[bp+22] = ;offset of fy
+proc spring_force_size_and_C
+	push bp
+	mov bp,sp
+	push si
+
+	push [bp+18]
+	push [bp+18]
+	push [bp+10]
+	push [bp+8]
+	push [bp+6]
+	push [bp+4]
+	call distance_equation
+
+	mov si,[bp+18]
+	fld [dword ptr si]
+	mov si,[bp+14]
+	fsub [dword ptr si]
+	mov si,[bp+12]
+	fmul [dword ptr si]
+	mov si,[bp+16]
+	fstp [dword ptr si]
+
+
+	mov si,[bp+8]
+	fld [dword ptr si]
+	mov si,[bp+4]
+	fsub [dword ptr si]
+	mov si,[bp+20]
+	fstp [dword ptr si]
+
+	mov si,[bp+10]
+	fld [dword ptr si]
+	mov si,[bp+6]
+	fsub [dword ptr si]
+	mov si,[bp+22]
+	fst [dword ptr si]
+
+	mov si,[bp+20]
+	fld [dword ptr si]
+	fldz
+	fcomip
+	jnb arctan_is_ok
+	fpatan
+	fchs
+
+	jmp spring_force_size_and_C_exit
+	arctan_is_ok:
+	fpatan
+
+	spring_force_size_and_C_exit:
+	mov si,[bp+18]
+	fst [dword ptr si]
+	fld [dword ptr si]
+
+	;;;;;;;;;;;;;;;;;;;;;;;;
+	mov [word ptr si],180
+	fldpi
+	fidiv [word ptr si]
+	fstp [dword ptr si]
+
+
+
+	fsin
+	mov si,[bp+16]
+	fmul [dword ptr si]
+	mov si,[bp+18]
+	fmul [dword ptr si]
+
+
+	mov si,[bp+22]
+	fld [dword ptr si]
+	fldz
+	dcomip
+	jnb y_is_not_negetive
+
+	fstp [dword ptr si]
+	fchs
+
+	jmp y_is_not_negetive_exit
+	y_is_not_negetive:
+	fstp [dword ptr si]
+	y_is_not_negetive_exit:
+	fstp [dword ptr si]
+
+	;;;;;;;;;;;;;;;;;;;;;;;;
+
+	fcos
+	mov si,[bp+16]
+	fmul [dword ptr si]
+	mov si,[bp+18]
+	fmul [dword ptr si]
+
+	mov si,[bp+20]
+	fld [dword ptr si]
+	fldz
+	dcomip
+	jnb y_is_not_negetive
+
+	fstp [dword ptr si]
+	fchs
+
+	jmp y_is_not_negetive_exit
+	x_is_not_negetive:
+	fstp [dword ptr si]
+	x_is_not_negetive_exit:
+	fstp [dword ptr si]
+
+	pop si
+	pop bp
+	ret 20
+endp spring_force_size_and_C
+;=====================================================================================================
+;[bp+4] = offset xp
+;[bp+6] = offset yp
+;[bp+8] = offset temp_float
+;[bp+10] = offset knormal
+;[bp+12] = offset dknormal
+;[bp+14] = offset of spring8
+;[bp+16] = offset of spring7
+;[bp+18] = offset of spring6
+;[bp+20] = offset of spring5
+;[bp+22] = offset of spring4
+;[bp+24] = offset of spring3
+;[bp+26] = offset of spring2
+;[bp+28] = offset of spring1
+;[bp+30] = offset x_temp
+;[bp+32] = offset length_of_points
+;[bp+34] = offset K
+;[bp+36] = offset temp_integer
 ;=====================================================================================================
 ;[bp+4] = offset of length_of_points
 ;[bp+6] = offset of xp
@@ -1266,6 +1452,10 @@ endp reset_place_values
 ;[bp+48] = offset of xa
 ;[bp+50] = offset of ya
 ;[bp+52] = offset of time_intervuls
+;[bp+54] = offset of knormal
+;[bp+56] = offset of dknormal
+;[bp+58] = offset of x_temp
+;[bp+60] = offset of k
 proc math
 	push bp
 	mov bp,sp
@@ -1280,6 +1470,13 @@ proc math
 	push [bp+42]
 	push [bp+38]
 	call reset_forces
+
+	push [bp+4]
+	push [bp+12]
+	push [bp+10]
+	push [bp+8]
+	push [bp+6]
+	call reset_place_values
 
 	push [bp+36]
 	push [bp+4]
@@ -1326,7 +1523,7 @@ proc math
 	pop bx
 	pop ax
 	pop bp
-	ret 50
+	ret 58
 endp math
 ;=====================================================================================================
 proc check_collision
@@ -1488,6 +1685,10 @@ main_lop:
 	call check_input
 
 
+	push offset k
+	push offset x_temp
+	push offset dknormal
+	push offset knormal
 	push offset time_intervuls
 	push offset ya
 	push offset xa
