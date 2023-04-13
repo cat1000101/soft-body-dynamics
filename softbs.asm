@@ -1338,7 +1338,8 @@ proc spring_force_size_and_C
 	mov si,[bp+20]
 	fld [dword ptr si]
 	fldz
-	fcom
+	
+	fcomp
 	fnstsw ax
 	sahf 
 	
@@ -1374,7 +1375,7 @@ proc spring_force_size_and_C
 	fld [dword ptr si]
 	fldz
 
-	fcom
+	fcomp
 	fnstsw ax
 	sahf 
 
@@ -1401,7 +1402,7 @@ proc spring_force_size_and_C
 	fld [dword ptr si]
 	fldz
 
-	fcom
+	fcomp
 	fnstsw ax
 	sahf
 
