@@ -8,7 +8,7 @@ DATASEG
 	length_of_points_times_4 dw 0
 	temp_integer dw 0
 	mass dd 0.1
-	gravity dd 10.0
+	gravity dd -10.0
 	time_intervuls dd 0.55
 	time_intervuls_squared_div_2 dd 0.15125
 ;--------------------------
@@ -123,30 +123,6 @@ DATASEG
 ; --------------------------
 ;hello world
 CODESEG
-;=====================================================================================================
-;[bp+4] = offset of left_y
-;[bp+6] = offset of left_x
-;[bp+8] = offset of right_y
-;[bp+10] = offset of right_x
-proc draw_square
-	push bp
-	mov bp,sp
-	push ax
-	push bx
-	push si
-	push di
-	push dx
-
-
-
-	pop dx
-	pop di
-	pop si
-	pop bx
-	pop ax
-	pop bp
-	ret
-endp draw_square
 ;=====================================================================================================
 ;[bp+4] = amount of cycles
 proc timer
@@ -532,7 +508,6 @@ proc spring8_proc
 	ret 12
 endp spring8_proc
 ;=====================================================================================================
-;=====================================================================================================
 ;[bp+4] = x numbers of points in the x direction
 ;[bp+6] = y numbers of points in the y direction
 ;[bp+8] = offset of x_position in dataseg
@@ -604,7 +579,7 @@ proc make_squre
 	mov ax,[bp+36]
 	sub bx,6
 	loop y_position_loop
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;spring section;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;spring section;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	xor ax,ax
 	xor bx,bx
 	xor dx,dx
@@ -809,11 +784,11 @@ proc init_of_objects
 	push si
 	push di
 	; --------------------------getting the collision objects
-;	push [bp+42]
-;	push [bp+40]
-;	push [bp+38]
-;	push [bp+36]
-;	call collision_mouse_maker
+	;	push [bp+42]
+	;	push [bp+40]
+	;	push [bp+38]
+	;	push [bp+36]
+	;	call collision_mouse_maker
 	; -------------------------- getting the size of the object
 	push 0
 	push 0
@@ -944,10 +919,9 @@ proc distance_equation
 	fmul [dword ptr di]
 
 	;ads the two numbers together and square root them and store in the result
-	mov si,[bp+12]
-	fstp [dword ptr si]
-	fadd [dword ptr si]
+	fadd
 	fsqrt
+	mov si,[bp+12]
 	fstp [dword ptr si]
 
 	pop di
@@ -980,18 +954,14 @@ proc new_position_equation
 	mov si,[bp+4]
 	fadd [dword ptr si]
 
-	fst [dword ptr di]
-
 	;mul a and t^2/2 and add the previos calc to this
 	mov si,[bp+10]
 	fld [dword ptr si]
 	mov si,[bp+12]
 	fmul [dword ptr si]
 
-	fst [dword ptr temp_float]
-
 	fadd
-	mov si,[bp+12]
+	mov si,[bp+14]
 	fstp [dword ptr si]
 	fstp [dword ptr di]
 
@@ -1190,51 +1160,86 @@ proc calc_acceleration
 	push bp
 	mov bp,sp
 	push ax
-	push bx
 	push cx
-	push dx
 	push si
-	push di
 
-
-	mov ax,[bp+4]
-	mov bx,[bp+6]
-	mov dx,[bp+8]
-	mov di,[bp+10]
-
+	xor ax,ax
 	mov si,[bp+14]
 	mov cx,[si]
 
 	calc_acceleration_loop:
-	mov si,dx
+	mov si,[bp+8]
+	add si,ax
 	fld [dword ptr si]
 	mov si,[bp+12]
 	fdiv [dword ptr si]
-	mov si,ax
+	mov si,[bp+4]
+	add si,ax
 	fstp [dword ptr si]
 
-	mov si,di
+	mov si,[bp+10]
+	add si,ax
 	fld [dword ptr si]
 	mov si,[bp+12]
 	fdiv [dword ptr si]
-	mov si,bx
+	mov si,[bp+6]
+	add si,ax
 	fstp [dword ptr si]
 
 	add ax,4
-	add bx,4
-	add dx,4
-	add di,4
 	loop calc_acceleration_loop
 
-	pop di
 	pop si
-	pop dx
 	pop cx
-	pop bx
 	pop ax
 	pop bp
 	ret 12
 endp calc_acceleration
+;=====================================================================================================
+;[bp+4] = offset of gravity
+;[bp+6] = offset of mass
+;[bp+8] = offset of yf
+;[bp+10] = offset of langth_of_points
+;[bp+12] = offset of temp_float
+proc gravity_force
+	push bp
+	mov bp,sp
+	push cx
+	push si
+	push di
+
+	mov si,[bp+4]
+	fld [dword ptr si]
+	mov si,[bp+6]
+	fmul [dword ptr si]
+	mov di,[bp+12]
+	fstp [dword ptr di]
+
+	mov si,[bp+10]
+	mov cx,[si]
+	mov si,[bp+8]
+
+	gravity_forces_loop:
+	fld [dword ptr si]
+	fadd [dword ptr di]
+	fstp [dword ptr si]
+	add si,4
+	loop gravity_forces_loop
+
+
+	pop di
+	pop si
+	pop cx
+	pop bp
+	ret 10
+endp gravity_force
+;=====================================================================================================
+proc reset_place_values
+
+
+
+	ret
+endp reset_place_values
 ;=====================================================================================================
 ;[bp+4] = offset of length_of_points
 ;[bp+6] = offset of xp
@@ -1276,6 +1281,13 @@ proc math
 	push [bp+38]
 	call reset_forces
 
+	push [bp+36]
+	push [bp+4]
+	push [bp+42]
+	push [bp+32]
+	push [bp+30]
+	call gravity_force
+
 
 	push [bp+4]
 	push [bp+32]
@@ -1284,7 +1296,6 @@ proc math
 	push [bp+50]
 	push [bp+48]
 	call calc_acceleration
-
 
 	push [bp+36]
 	push [bp+4]
@@ -1359,6 +1370,30 @@ proc check_input
 	pop bp
 	ret
 endp check_input
+;=====================================================================================================
+;[bp+4] = offset of left_y
+;[bp+6] = offset of left_x
+;[bp+8] = offset of right_y
+;[bp+10] = offset of right_x
+proc draw_square
+	push bp
+	mov bp,sp
+	push ax
+	push bx
+	push si
+	push di
+	push dx
+
+
+
+	pop dx
+	pop di
+	pop si
+	pop bx
+	pop ax
+	pop bp
+	ret
+endp draw_square
 ;=====================================================================================================
 ;[bp+10] = yp offset
 ;[bp+8] = xp offset
@@ -1448,7 +1483,7 @@ start:
 	push 0
 	call init_of_objects
 
-;main_lop:
+main_lop:
 
 	call check_input
 
@@ -1482,17 +1517,21 @@ start:
 
 	call check_collision
 
+	call clear_screen
+
 	push offset yp
 	push offset xp
 	push offset temp_integer
 	push [word ptr length_of_points]
 	call draw
 
-;jmp main_lop
-
-
 	mov ah,0 ;stop the program to see what is going on
 	int 16h
+	cmp al,27
+	je exit_main_loop
+
+jmp main_lop
+exit_main_loop:
 ; --------------------------
     ; Return to text mode
 	mov ah, 0
