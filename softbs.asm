@@ -1301,6 +1301,7 @@ proc spring_force_size_and_C
 	push bp
 	mov bp,sp
 	push si
+	push ax
 
 	push [word ptr bp+18]
 	push [word ptr bp+18]
@@ -1337,7 +1338,10 @@ proc spring_force_size_and_C
 	mov si,[bp+20]
 	fld [dword ptr si]
 	fldz
-;	fcomip;;;;;;;;;;;;;;;
+	fcom
+	fnstsw ax
+	sahf 
+	
 	jnb arctan_is_ok
 	fpatan
 	fchs
@@ -1369,7 +1373,11 @@ proc spring_force_size_and_C
 	mov si,[bp+22]
 	fld [dword ptr si]
 	fldz
-;	fcomip ;;;;;;;;;;;;;;;;;;
+
+	fcom
+	fnstsw ax
+	sahf 
+
 	jnb y_is_not_negetive
 
 	fstp [dword ptr si]
@@ -1392,7 +1400,11 @@ proc spring_force_size_and_C
 	mov si,[bp+20]
 	fld [dword ptr si]
 	fldz
-;	fcomip;;;;;;;;;;;;;;;;;;;
+
+	fcom
+	fnstsw ax
+	sahf
+
 	jnb y_is_not_negetive
 
 	fstp [dword ptr si]
@@ -1404,6 +1416,8 @@ proc spring_force_size_and_C
 	x_is_not_negetive_exit:
 	fstp [dword ptr si]
 
+
+	pop ax
 	pop si
 	pop bp
 	ret 20
