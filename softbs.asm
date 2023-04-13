@@ -1,4 +1,4 @@
-.286
+.386
 IDEAL
 MODEL small
 STACK 100h
@@ -604,33 +604,33 @@ proc make_squre
 	spring_lop:
 
 	push bx
-	push [bp+6]
+	push [word ptr bp+6]
 	push [di]
 	push si
-	push [bp+4]
+	push [word ptr bp+4]
 
-	push [bp+26]
+	push [word ptr bp+26]
 	call spring1_proc
 
-	push [bp+24]
+	push [word ptr bp+24]
 	call spring2_proc
 
-	push [bp+22]
+	push [word ptr bp+22]
 	call spring3_proc
 	
-	push [bp+20]
+	push [word ptr bp+20]
 	call spring4_proc
 
-	push [bp+18]
+	push [word ptr bp+18]
 	call spring5_proc
 
-	push [bp+16]
+	push [word ptr bp+16]
 	call spring6_proc
 
-	push [bp+14]
+	push [word ptr bp+14]
 	call spring7_proc
 
-	push [bp+12]
+	push [word ptr bp+12]
 	call spring8_proc
 
 
@@ -817,22 +817,22 @@ proc init_of_objects
 	mov [di],ax
 
 	push 0
-	push [bp+34]
-	push [bp+32]
-	push [bp+30]
-	push [bp+28]
-	push [bp+26]
-	push [bp+24]
-	push [bp+22]
-	push [bp+20]
-	push [bp+18]
-	push [bp+16]
-	push [bp+14]
-	push [bp+12]
-	push [bp+10]
-	push [bp+8]
-	push [bp+6]
-	push [bp+4]
+	push [word ptr bp+34]
+	push [word ptr bp+32]
+	push [word ptr bp+30]
+	push [word ptr bp+28]
+	push [word ptr bp+26]
+	push [word ptr bp+24]
+	push [word ptr bp+22]
+	push [word ptr bp+20]
+	push [word ptr bp+18]
+	push [word ptr bp+16]
+	push [word ptr bp+14]
+	push [word ptr bp+12]
+	push [word ptr bp+10]
+	push [word ptr bp+8]
+	push [word ptr bp+6]
+	push [word ptr bp+4]
 	call make_squre
 	; --------------------------
 	pop di
@@ -961,15 +961,15 @@ proc new_position
 	mov cx,[si]
 	xor ax,ax
 	new_position_loop:
-	push [bp+26]
+	push [word ptr bp+26]
 	mov si,[bp+4]
 	add si,ax
 	push si
-	push [bp+22]
+	push [word ptr bp+22]
 	mov si,[bp+16]
 	add si,ax
 	push si
-	push [bp+20]
+	push [word ptr bp+20]
 	mov si,[bp+10]
 	add si,ax
 	push si
@@ -979,15 +979,15 @@ proc new_position
 	call new_position_equation
 
 
-	push [bp+26]
+	push [word ptr bp+26]
 	mov si,[bp+6]
 	add si,ax
 	push si
-	push [bp+22]
+	push [word ptr bp+22]
 	mov si,[bp+18]
 	add si,ax
 	push si
-	push [bp+20]
+	push [word ptr bp+20]
 	mov si,[bp+14]
 	add si,ax
 	push si
@@ -1055,7 +1055,7 @@ proc new_velocity
 	mov si,[bp+8]
 	add si,ax
 	push si
-	push [bp+12]
+	push [word ptr bp+12]
 	mov si,[bp+4]
 	add si,ax
 	push si
@@ -1067,7 +1067,7 @@ proc new_velocity
 	mov si,[bp+10]
 	add si,ax
 	push si
-	push [bp+12]
+	push [word ptr bp+12]
 	mov si,[bp+6]
 	add si,ax
 	push si
@@ -1302,12 +1302,12 @@ proc spring_force_size_and_C
 	mov bp,sp
 	push si
 
-	push [bp+18]
-	push [bp+18]
-	push [bp+10]
-	push [bp+8]
-	push [bp+6]
-	push [bp+4]
+	push [word ptr bp+18]
+	push [word ptr bp+18]
+	push [word ptr bp+10]
+	push [word ptr bp+8]
+	push [word ptr bp+6]
+	push [word ptr bp+4]
 	call distance_equation
 
 	mov si,[bp+18]
@@ -1337,7 +1337,7 @@ proc spring_force_size_and_C
 	mov si,[bp+20]
 	fld [dword ptr si]
 	fldz
-	fcomip
+;	fcomip;;;;;;;;;;;;;;;
 	jnb arctan_is_ok
 	fpatan
 	fchs
@@ -1364,12 +1364,12 @@ proc spring_force_size_and_C
 	fmul [dword ptr si]
 	mov si,[bp+18]
 	fmul [dword ptr si]
-
+ 
 
 	mov si,[bp+22]
 	fld [dword ptr si]
 	fldz
-	dcomip
+;	fcomip ;;;;;;;;;;;;;;;;;;
 	jnb y_is_not_negetive
 
 	fstp [dword ptr si]
@@ -1392,7 +1392,7 @@ proc spring_force_size_and_C
 	mov si,[bp+20]
 	fld [dword ptr si]
 	fldz
-	dcomip
+;	fcomip;;;;;;;;;;;;;;;;;;;
 	jnb y_is_not_negetive
 
 	fstp [dword ptr si]
@@ -1466,54 +1466,54 @@ proc math
 	push si
 	push di
 
-	push [bp+4]
-	push [bp+42]
-	push [bp+38]
+	push [word ptr bp+4]
+	push [word ptr bp+42]
+	push [word ptr bp+38]
 	call reset_forces
 
-	push [bp+4]
-	push [bp+12]
-	push [bp+10]
-	push [bp+8]
-	push [bp+6]
+	push [word ptr bp+4]
+	push [word ptr bp+12]
+	push [word ptr bp+10]
+	push [word ptr bp+8]
+	push [word ptr bp+6]
 	call reset_place_values
 
-	push [bp+36]
-	push [bp+4]
-	push [bp+42]
-	push [bp+32]
-	push [bp+30]
+	push [word ptr bp+36]
+	push [word ptr bp+4]
+	push [word ptr bp+42]
+	push [word ptr bp+32]
+	push [word ptr bp+30]
 	call gravity_force
 
 
-	push [bp+4]
-	push [bp+32]
-	push [bp+42]
-	push [bp+38]
-	push [bp+50]
-	push [bp+48]
+	push [word ptr bp+4]
+	push [word ptr bp+32]
+	push [word ptr bp+42]
+	push [word ptr bp+38]
+	push [word ptr bp+50]
+	push [word ptr bp+48]
 	call calc_acceleration
 
-	push [bp+36]
-	push [bp+4]
-	push [bp+46]
-	push [bp+52]
-	push [bp+50]
-	push [bp+48]
-	push [bp+44]
-	push [bp+42]
-	push [bp+40]
-	push [bp+38]
-	push [bp+8]
-	push [bp+6]
+	push [word ptr bp+36]
+	push [word ptr bp+4]
+	push [word ptr bp+46]
+	push [word ptr bp+52]
+	push [word ptr bp+50]
+	push [word ptr bp+48]
+	push [word ptr bp+44]
+	push [word ptr bp+42]
+	push [word ptr bp+40]
+	push [word ptr bp+38]
+	push [word ptr bp+8]
+	push [word ptr bp+6]
 	call new_position
 
-	push [bp+4]
-	push [bp+52]
-	push [bp+50]
-	push [bp+48]
-	push [bp+44]
-	push [bp+40]
+	push [word ptr bp+4]
+	push [word ptr bp+52]
+	push [word ptr bp+50]
+	push [word ptr bp+48]
+	push [word ptr bp+44]
+	push [word ptr bp+40]
 	call new_velocity
 
 	pop di
