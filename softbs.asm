@@ -16,10 +16,8 @@ DATASEG
 	time_intervuls dd 0.55
 	time_intervuls_squared_div_2 dd 0.15125
 ;--------------------------
-	temp_float1 dd 0
 	temp_float2 dd 0
-	temp_float3 dd 0
-	x_temp dd 0
+	temp_float1 dd 0
 ;--------------------------
 	step_flag dw 0
 	
@@ -1283,21 +1281,21 @@ proc distance_equation
 	ret 12
 endp distance_equation
 ;=====================================================================================================
-;F=-K*X (k is already negative) st(2)
+;F=-K*X (k is already negative)
 ;X=distance - nk
-;cx = bx-ax st(0)
-;cy = by-ay st(1)
+;cx = bx-ax
+;cy = by-ay
 ;[bp+4] = offset ax
 ;[bp+6] = offset ay
 ;[bp+8] = offset bx
 ;[bp+10] = offset by
-;[bp+12] = offset K
-;[bp+14] = offset knormal
+;[bp+12] = offset knormal
+;[bp+14] = offset K
 ;[bp+16] = offset temp_float
 ;[bp+18] = offset of C-+?
 ;[bp+20] = ;offset of fx
 ;[bp+22] = ;offset of fy
-proc spring_force_size_and_C
+proc spring_force_calc
 	push bp
 	mov bp,sp
 	push si
@@ -1313,9 +1311,9 @@ proc spring_force_size_and_C
 
 	mov si,[bp+18]
 	fld [dword ptr si]
-	mov si,[bp+14]
-	fsub [dword ptr si]
 	mov si,[bp+12]
+	fsub [dword ptr si]
+	mov si,[bp+14]
 	fmul [dword ptr si]
 	mov si,[bp+16]
 	fstp [dword ptr si]
@@ -1422,25 +1420,156 @@ proc spring_force_size_and_C
 	pop si
 	pop bp
 	ret 20
-endp spring_force_size_and_C
+endp spring_force_calc
 ;=====================================================================================================
-;[bp+4] = offset xp
-;[bp+6] = offset yp
-;[bp+8] = offset temp_float
+;[bp+4] = offset knormal
+;[bp+6] = offset of spring
+;[bp+8] = offset K
+;[bp+10] = offset of xp
+;[bp+12] = offset of yp
+;[bp+14] = offset temp_float
+;[bp+16] = offset of C-+?
+;[bp+18] = offset of fx
+;[bp+20] = offset of fy
+;[bp+22] = loop counter
+proc shorten_the_spring_calc
+	mov bp,sp
+	push ax
+	push bx
+	push si
+
+	mov bx,[bp+22]
+	shl bx,1
+	mov ax,[bp+22]
+
+	push [word ptr bp+20]
+	push [word ptr bp+18]
+	push [word ptr bp+16]
+	push [word ptr bp+14]
+	push [word ptr bp+8]
+	push [word ptr bp+4]
+
+	mov si,[bp+6]
+	add si,ax
+	mov si,[si]
+	add si,[bp+12]
+	push si
+
+	mov si,[bp+6]
+	add si,ax
+	mov si,[si]
+	add si,[bp+10]
+	push si
+
+	mov si,[bp+12]
+	add si,bx
+	push si
+
+	mov si,[bp+10]
+	add si,bx
+	push si
+
+	call spring_force_calc
+
+	pop si
+	pop bx
+	pop ax
+	pop bp
+	ret 10
+endp shorten_the_spring_calc
+;=====================================================================================================
+;[bp+4] = offset length_of_points
+;[bp+6] = offset xp
+;[bp+8] = offset yp
 ;[bp+10] = offset knormal
 ;[bp+12] = offset dknormal
-;[bp+14] = offset of spring8
-;[bp+16] = offset of spring7
-;[bp+18] = offset of spring6
-;[bp+20] = offset of spring5
-;[bp+22] = offset of spring4
-;[bp+24] = offset of spring3
-;[bp+26] = offset of spring2
-;[bp+28] = offset of spring1
-;[bp+30] = offset x_temp
-;[bp+32] = offset length_of_points
-;[bp+34] = offset K
-;[bp+36] = offset temp_integer
+;[bp+14] = offset K
+;[bp+16] = offset of spring8
+;[bp+18] = offset of spring7
+;[bp+20] = offset of spring6
+;[bp+22] = offset of spring5
+;[bp+24] = offset of spring4
+;[bp+26] = offset of spring3
+;[bp+28] = offset of spring2
+;[bp+30] = offset of spring1
+;[bp+32] = offset temp_float
+;[bp+34] = offset temp_float1
+;[bp+36] = offset temp_float2
+;[bp+38] = offset temp_integer
+proc spring_calc
+	mov bp,sp
+	push ax
+	push bx
+	push cx
+	push dx
+	push si
+	push di
+
+	mov si,[bp+4]
+	mov cx,[si]
+	xor ax,ax
+
+	spring_calc_loop:
+	push ax
+	push [word ptr bp+36]
+	push [word ptr bp+34]
+	push [word ptr bp+38]
+	push [word ptr bp+32]
+	push [word ptr bp+8]
+	push [word ptr bp+6]
+	push [word ptr bp+14]
+
+	push [word ptr bp+16]
+	push [word ptr bp+10]
+	call shorten_the_spring_calculator
+	;;;;;;;;;;;;;;
+	push [word ptr bp+16]
+	push [word ptr bp+10]
+	call shorten_the_spring_calculator
+	;;;;;;;;;;;;;;
+	push [word ptr bp+16]
+	push [word ptr bp+10]
+	call shorten_the_spring_calculator
+	;;;;;;;;;;;;;;
+	push [word ptr bp+16]
+	push [word ptr bp+10]
+	call shorten_the_spring_calculator
+	;;;;;;;;;;;;;;
+	push [word ptr bp+16]
+	push [word ptr bp+10]
+	call shorten_the_spring_calculator
+	;;;;;;;;;;;;;;
+	push [word ptr bp+16]
+	push [word ptr bp+10]
+	call shorten_the_spring_calculator
+	;;;;;;;;;;;;;;
+	push [word ptr bp+16]
+	push [word ptr bp+10]
+	call shorten_the_spring_calculator
+	;;;;;;;;;;;;;;
+	push [word ptr bp+16]
+	push [word ptr bp+10]
+	call shorten_the_spring_calculator
+	;;;;;;;;;;;;;;
+
+	pop bx
+	pop bx
+	pop bx
+	pop bx
+	pop bx
+
+	add ax,2
+	loop spring_calc_loop
+
+	pop di
+	pop si
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	pop bp
+	ret 36
+endp spring_calc
 ;=====================================================================================================
 ;[bp+4] = offset of length_of_points
 ;[bp+6] = offset of xp
@@ -1469,8 +1598,9 @@ endp spring_force_size_and_C
 ;[bp+52] = offset of time_intervuls
 ;[bp+54] = offset of knormal
 ;[bp+56] = offset of dknormal
-;[bp+58] = offset of x_temp
+;[bp+58] = offset of temp_float1
 ;[bp+60] = offset of k
+;[bp+62] = offset of temp_float2
 proc math
 	push bp
 	mov bp,sp
@@ -1538,7 +1668,7 @@ proc math
 	pop bx
 	pop ax
 	pop bp
-	ret 58
+	ret 60
 endp math
 ;=====================================================================================================
 proc check_collision
@@ -1699,9 +1829,9 @@ main_lop:
 
 	call check_input
 
-
+	push offset temp_float2
 	push offset k
-	push offset x_temp
+	push offset temp_float1
 	push offset dknormal
 	push offset knormal
 	push offset time_intervuls
