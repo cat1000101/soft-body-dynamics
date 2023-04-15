@@ -1,2 +1,9 @@
-Fatal: Unable to open file 'softbs.obj'
+
+ Start  Stop   Length Name               Class
+
+ 00000H 009CCH 009CDH _TEXT              CODE
+ 009D0H 030B2H 026E3H _DATA              DATA
+ 030C0H 031BFH 00100H STACK              STACK
+
+Program entry point at 0000:08F5
 

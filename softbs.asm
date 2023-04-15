@@ -1373,19 +1373,12 @@ proc spring_force_calc
 	fld [dword ptr si]
 	fldz
 
-	fcomp
+	fcompp
 	fnstsw ax
-	sahf 
-
+	sahf
 	jnb y_is_not_negetive
-
-	fstp [dword ptr si]
 	fchs
-
-	jmp y_is_not_negetive_exit
 	y_is_not_negetive:
-	fstp [dword ptr si]
-	y_is_not_negetive_exit:
 	fstp [dword ptr si]
 
 	;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1400,19 +1393,12 @@ proc spring_force_calc
 	fld [dword ptr si]
 	fldz
 
-	fcomp
+	fcompp
 	fnstsw ax
 	sahf
-
 	jnb y_is_not_negetive
-
-	fstp [dword ptr si]
 	fchs
-
-	jmp y_is_not_negetive_exit
 	x_is_not_negetive:
-	fstp [dword ptr si]
-	x_is_not_negetive_exit:
 	fstp [dword ptr si]
 
 
@@ -1429,9 +1415,11 @@ endp spring_force_calc
 ;[bp+12] = offset of yp
 ;[bp+14] = offset temp_float
 ;[bp+16] = offset of C-+?
-;[bp+18] = offset of fx
-;[bp+20] = offset of fy
+;[bp+18] = offset of fx_spring
+;[bp+20] = offset of fy_spring
 ;[bp+22] = loop counter
+;[bp+24] = offset of fx
+;[bp+26] = offset of fy
 proc shorten_the_spring_calc
 	mov bp,sp
 	push ax
@@ -1471,12 +1459,45 @@ proc shorten_the_spring_calc
 
 	call spring_force_calc
 
+
+	push [word ptr bp+20]
+	push [word ptr bp+26]
+	push [word ptr bp+18]
+	push [word ptr bp+24]
+	call spring_direction_add
+
 	pop si
 	pop bx
 	pop ax
 	pop bp
-	ret 10
+	ret 6
 endp shorten_the_spring_calc
+;=====================================================================================================
+;[bp+4] = offset of fx
+;[bp+6] = offset of fx_of_spring
+;[bp+8] = offset of fy
+;[bp+10] = offset of fy_of_spring
+proc spring_direction_add
+	push bp
+	mov bp,sp
+	push si
+
+	mov si,[bp+10]
+	fld [dword ptr si]
+	mov si,[bp+8]
+	fadd [dword ptr si]
+	fstp [dword ptr si]
+
+	mov si,[bp+6]
+	fld [dword ptr si]
+	mov si,[bp+4]
+	fadd [dword ptr si]
+	fstp [dword ptr si]
+
+	pop si
+	pop bp
+	ret 8
+endp spring_direction_add
 ;=====================================================================================================
 ;[bp+4] = offset length_of_points
 ;[bp+6] = offset xp
@@ -1496,6 +1517,8 @@ endp shorten_the_spring_calc
 ;[bp+34] = offset temp_float1
 ;[bp+36] = offset temp_float2
 ;[bp+38] = offset temp_integer
+;[bp+40] = offset fx
+;[bp+42] = offset fy
 proc spring_calc
 	mov bp,sp
 	push ax
@@ -1510,6 +1533,8 @@ proc spring_calc
 	xor ax,ax
 
 	spring_calc_loop:
+	push [word ptr bp+42]
+	push [word ptr bp+40]
 	push ax
 	push [word ptr bp+36]
 	push [word ptr bp+34]
@@ -1521,37 +1546,42 @@ proc spring_calc
 
 	push [word ptr bp+16]
 	push [word ptr bp+10]
-	call shorten_the_spring_calculator
+	call shorten_the_spring_calc
 	;;;;;;;;;;;;;;
-	push [word ptr bp+16]
-	push [word ptr bp+10]
-	call shorten_the_spring_calculator
+	push [word ptr bp+18]
+	push [word ptr bp+12]
+	call shorten_the_spring_calc
 	;;;;;;;;;;;;;;
-	push [word ptr bp+16]
+	push [word ptr bp+20]
 	push [word ptr bp+10]
-	call shorten_the_spring_calculator
+	call shorten_the_spring_calc
 	;;;;;;;;;;;;;;
-	push [word ptr bp+16]
-	push [word ptr bp+10]
-	call shorten_the_spring_calculator
+	push [word ptr bp+22]
+	push [word ptr bp+12]
+	call shorten_the_spring_calc
 	;;;;;;;;;;;;;;
-	push [word ptr bp+16]
+	push [word ptr bp+24]
 	push [word ptr bp+10]
-	call shorten_the_spring_calculator
+	call shorten_the_spring_calc
 	;;;;;;;;;;;;;;
-	push [word ptr bp+16]
-	push [word ptr bp+10]
-	call shorten_the_spring_calculator
+	push [word ptr bp+26]
+	push [word ptr bp+12]
+	call shorten_the_spring_calc
 	;;;;;;;;;;;;;;
-	push [word ptr bp+16]
+	push [word ptr bp+28]
 	push [word ptr bp+10]
-	call shorten_the_spring_calculator
+	call shorten_the_spring_calc
 	;;;;;;;;;;;;;;
-	push [word ptr bp+16]
-	push [word ptr bp+10]
-	call shorten_the_spring_calculator
+	push [word ptr bp+30]
+	push [word ptr bp+12]
+	call shorten_the_spring_calc
 	;;;;;;;;;;;;;;
 
+	pop bx
+	pop bx
+	pop bx
+	pop bx
+	pop bx
 	pop bx
 	pop bx
 	pop bx
@@ -1568,7 +1598,7 @@ proc spring_calc
 	pop bx
 	pop ax
 	pop bp
-	ret 36
+	ret 40
 endp spring_calc
 ;=====================================================================================================
 ;[bp+4] = offset of length_of_points
