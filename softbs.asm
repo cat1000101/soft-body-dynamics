@@ -16,8 +16,8 @@ DATASEG
 	knormal dd 6.0
 	dknormal dd 8.4852809906005859375
 	k dd -1.0
-	time_intervuls dd 0.001
-	time_intervuls_squared_div_2 dd 0.0000005
+	time_intervuls dd 1.0;0.002
+	time_intervuls_squared_div_2 dd 0.5;0.000002
 ;--------------------------
 	temp_float2 dd 0
 	temp_float1 dd 0
@@ -1348,11 +1348,18 @@ proc spring_force_calc
 	
 	jnb arctan_is_ok
 	fpatan
+
+fst [dword ptr di]
+
 	fchs
+
+fst [dword ptr di]
 
 	jmp spring_force_size_and_C_exit
 	arctan_is_ok:
 	fpatan
+
+fst [dword ptr di]
 
 	spring_force_size_and_C_exit:
 	mov si,[bp+18]
@@ -1362,20 +1369,36 @@ proc spring_force_calc
 	;;;;;;;;;;;;;;;;;;;;;;;;
 	mov [word ptr si],180
 	fldpi
+
+fst [dword ptr di]
+
 	fidivr [word ptr si]
+
+fst [dword ptr di]
+
 	fstp [dword ptr si]
 
 
 
 	fsin
 
+fst [dword ptr di]
+
 	mov si,[bp+16]
 	fmul [dword ptr si]
+
+fst [dword ptr di]
+
 	mov si,[bp+18]
 	fmul [dword ptr si]
 
+fst [dword ptr di]
+
 	mov si,[bp+22]
 	fld [dword ptr si]
+
+fst [dword ptr di]
+
 	fldz
 
 	fcompp
@@ -1383,6 +1406,9 @@ proc spring_force_calc
 	sahf
 	jnb y_is_not_negetive
 	fchs
+
+fst [dword ptr di]
+
 	y_is_not_negetive:
 	fstp [dword ptr si]
 
@@ -1394,6 +1420,9 @@ fst [dword ptr di]
 
 	mov si,[bp+16]
 	fmul [dword ptr si]
+
+fst [dword ptr di]
+
 	mov si,[bp+18]
 	fmul [dword ptr si]
 
@@ -1401,6 +1430,9 @@ fst [dword ptr di]
 
 	mov si,[bp+20]
 	fld [dword ptr si]
+
+fst [dword ptr di]
+
 	fldz
 
 	fcompp
@@ -1408,6 +1440,9 @@ fst [dword ptr di]
 	sahf
 	jnb x_is_not_negetive
 	fchs
+
+fst [dword ptr di]
+
 	x_is_not_negetive:
 	fstp [dword ptr si]
 
