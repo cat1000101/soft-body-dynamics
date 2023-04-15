@@ -1,7 +1,7 @@
 .386
 IDEAL
 MODEL small
-STACK 100h
+STACK 200h
 DATASEG
 ; --------------------------
 	temp_float_testing dd 0
@@ -13,9 +13,9 @@ DATASEG
 	temp_integer dd 0
 	mass dd 0.1
 	gravity dd -10.0
-	knormal dd 6
+	knormal dd 6.0
 	dknormal dd 8.4852809906005859375
-	k dd -1
+	k dd -1.0
 	time_intervuls dd 0.001
 	time_intervuls_squared_div_2 dd 0.0000005
 ;--------------------------
@@ -597,8 +597,7 @@ proc make_squre
 	mov bx,[bp+30]
 	mov cx,[bx]
 	mov ax,[bp+4]
-	mov bx,4
-	mul bx
+	shl ax,2
 	mov [bp+4],ax
 	xor bx,bx
 	mov di,[bp+28]
@@ -1273,7 +1272,7 @@ proc distance_equation
 	fmul [dword ptr di]
 
 	;ads the two numbers together and square root them and store in the result
-	fadd
+	faddp
 	fsqrt
 	mov si,[bp+12]
 	fstp [dword ptr si]
@@ -1307,15 +1306,15 @@ proc spring_force_calc
 
 	mov di,offset temp_float_testing
 
-	push [word ptr bp+18]
-	push [word ptr bp+18]
+	push [word ptr bp+16]
+	push [word ptr bp+16]
 	push [word ptr bp+10]
 	push [word ptr bp+8]
 	push [word ptr bp+6]
 	push [word ptr bp+4]
 	call distance_equation
 
-	mov si,[bp+18]
+	mov si,[bp+16]
 	fld [dword ptr si]
 	mov si,[bp+12]
 	fsub [dword ptr si]
@@ -1363,17 +1362,17 @@ proc spring_force_calc
 	;;;;;;;;;;;;;;;;;;;;;;;;
 	mov [word ptr si],180
 	fldpi
-	fidiv [word ptr si]
+	fidivr [word ptr si]
 	fstp [dword ptr si]
 
 
 
 	fsin
+
 	mov si,[bp+16]
 	fmul [dword ptr si]
 	mov si,[bp+18]
 	fmul [dword ptr si]
- 
 
 	mov si,[bp+22]
 	fld [dword ptr si]
@@ -1390,10 +1389,15 @@ proc spring_force_calc
 	;;;;;;;;;;;;;;;;;;;;;;;;
 
 	fcos
+
+fst [dword ptr di]
+
 	mov si,[bp+16]
 	fmul [dword ptr si]
 	mov si,[bp+18]
 	fmul [dword ptr si]
+
+fst [dword ptr di]
 
 	mov si,[bp+20]
 	fld [dword ptr si]
@@ -1402,7 +1406,7 @@ proc spring_force_calc
 	fcompp
 	fnstsw ax
 	sahf
-	jnb y_is_not_negetive
+	jnb x_is_not_negetive
 	fchs
 	x_is_not_negetive:
 	fstp [dword ptr si]
@@ -1428,10 +1432,18 @@ endp spring_force_calc
 ;[bp+24] = offset of fx
 ;[bp+26] = offset of fy
 proc shorten_the_spring_calc
+	push bp
 	mov bp,sp
 	push ax
 	push bx
 	push si
+
+
+	mov si,[bp+6]
+	add si,[bp+22]
+	mov si,[si]
+	cmp si,0ffffh
+	je shorten_the_spring_calc_exit
 
 	mov bx,[bp+22]
 	shl bx,1
@@ -1466,44 +1478,55 @@ proc shorten_the_spring_calc
 
 	call spring_force_calc
 
-
+	push [word ptr bp+22]
 	push [word ptr bp+20]
 	push [word ptr bp+26]
 	push [word ptr bp+18]
 	push [word ptr bp+24]
 	call spring_direction_add
 
+	shorten_the_spring_calc_exit:
+
+
 	pop si
 	pop bx
 	pop ax
 	pop bp
-	ret 6
+	ret 4
 endp shorten_the_spring_calc
 ;=====================================================================================================
 ;[bp+4] = offset of fx
 ;[bp+6] = offset of fx_of_spring
 ;[bp+8] = offset of fy
 ;[bp+10] = offset of fy_of_spring
+;[bp+12] = loop counter
 proc spring_direction_add
 	push bp
 	mov bp,sp
 	push si
+	push ax
+
+	mov ax,[bp+12]
+	shl ax,1
 
 	mov si,[bp+10]
 	fld [dword ptr si]
 	mov si,[bp+8]
+	add si,ax
 	fadd [dword ptr si]
 	fstp [dword ptr si]
 
 	mov si,[bp+6]
 	fld [dword ptr si]
 	mov si,[bp+4]
+	add si,ax
 	fadd [dword ptr si]
 	fstp [dword ptr si]
 
+	pop ax
 	pop si
 	pop bp
-	ret 8
+	ret 10
 endp spring_direction_add
 ;=====================================================================================================
 ;[bp+4] = offset length_of_points
@@ -1526,7 +1549,9 @@ endp spring_direction_add
 ;[bp+38] = offset temp_integer
 ;[bp+40] = offset fx
 ;[bp+42] = offset fy
+;[bp+44] = random
 proc spring_calc
+	push bp
 	mov bp,sp
 	push ax
 	push bx
@@ -1538,9 +1563,11 @@ proc spring_calc
 	xor ax,ax
 
 	spring_calc_loop:
+	mov [bp+44],ax
+
 	push [word ptr bp+42]
 	push [word ptr bp+40]
-	push ax
+	push [word ptr bp+44]
 	push [word ptr bp+36]
 	push [word ptr bp+34]
 	push [word ptr bp+38]
@@ -1593,15 +1620,18 @@ proc spring_calc
 	pop bx
 	pop bx
 
+
+
 	add ax,2
 	loop spring_calc_loop
+
 
 	pop si
 	pop cx
 	pop bx
 	pop ax
 	pop bp
-	ret 40
+	ret 42
 endp spring_calc
 ;=====================================================================================================
 ;[bp+4] = offset of length_of_points
@@ -1663,26 +1693,27 @@ proc math
 	push [word ptr bp+30]
 	call gravity_force
 
-	push [dword ptr bp+42]
-	push [dword ptr bp+38]
-	push [dword ptr bp+34]
-	push [dword ptr bp+62]
-	push [dword ptr bp+58]
-	push [dword ptr bp+36]
-	push [dword ptr bp+28]
-	push [dword ptr bp+26]
-	push [dword ptr bp+24]
-	push [dword ptr bp+22]
-	push [dword ptr bp+20]
-	push [dword ptr bp+18]
-	push [dword ptr bp+16]
-	push [dword ptr bp+14]
-	push [dword ptr bp+60]
-	push [dword ptr bp+56]
-	push [dword ptr bp+54]
-	push [dword ptr bp+8]
-	push [dword ptr bp+6]
-	push [dword ptr bp+4]
+	push 0
+	push [word ptr bp+42]
+	push [word ptr bp+38]
+	push [word ptr bp+34]
+	push [word ptr bp+62]
+	push [word ptr bp+58]
+	push [word ptr bp+36]
+	push [word ptr bp+28]
+	push [word ptr bp+26]
+	push [word ptr bp+24]
+	push [word ptr bp+22]
+	push [word ptr bp+20]
+	push [word ptr bp+18]
+	push [word ptr bp+16]
+	push [word ptr bp+14]
+	push [word ptr bp+60]
+	push [word ptr bp+56]
+	push [word ptr bp+54]
+	push [word ptr bp+8]
+	push [word ptr bp+6]
+	push [word ptr bp+4]
 	call spring_calc
 
 	push [word ptr bp+4]
@@ -2060,8 +2091,8 @@ main_lop:
 	push offset yf
 	push offset xv
 	push offset xf
-	push offset temp_integer
 	push offset temp_float
+	push offset temp_integer
 	push offset mass
 	push offset gravity
 	push offset spring1
