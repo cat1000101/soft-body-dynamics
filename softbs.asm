@@ -4,6 +4,9 @@ MODEL small
 STACK 100h
 DATASEG
 ; --------------------------
+	temp_float_testing dd 0
+
+
 	temp_float dd 0
 	length_of_points dw 0
 	length_of_points_times_4 dw 0
@@ -13,8 +16,8 @@ DATASEG
 	knormal dd 6
 	dknormal dd 8.4852809906005859375
 	k dd -1
-	time_intervuls dd 0.55
-	time_intervuls_squared_div_2 dd 0.15125
+	time_intervuls dd 0.001
+	time_intervuls_squared_div_2 dd 0.0000005
 ;--------------------------
 	temp_float2 dd 0
 	temp_float1 dd 0
@@ -1300,6 +1303,9 @@ proc spring_force_calc
 	mov bp,sp
 	push si
 	push ax
+	push di
+
+	mov di,offset temp_float_testing
 
 	push [word ptr bp+18]
 	push [word ptr bp+18]
@@ -1402,6 +1408,7 @@ proc spring_force_calc
 	fstp [dword ptr si]
 
 
+	pop di
 	pop ax
 	pop si
 	pop bp
@@ -1524,9 +1531,7 @@ proc spring_calc
 	push ax
 	push bx
 	push cx
-	push dx
 	push si
-	push di
 
 	mov si,[bp+4]
 	mov cx,[si]
@@ -1591,9 +1596,7 @@ proc spring_calc
 	add ax,2
 	loop spring_calc_loop
 
-	pop di
 	pop si
-	pop dx
 	pop cx
 	pop bx
 	pop ax
@@ -1660,6 +1663,27 @@ proc math
 	push [word ptr bp+30]
 	call gravity_force
 
+	push [dword ptr bp+42]
+	push [dword ptr bp+38]
+	push [dword ptr bp+34]
+	push [dword ptr bp+62]
+	push [dword ptr bp+58]
+	push [dword ptr bp+36]
+	push [dword ptr bp+28]
+	push [dword ptr bp+26]
+	push [dword ptr bp+24]
+	push [dword ptr bp+22]
+	push [dword ptr bp+20]
+	push [dword ptr bp+18]
+	push [dword ptr bp+16]
+	push [dword ptr bp+14]
+	push [dword ptr bp+60]
+	push [dword ptr bp+56]
+	push [dword ptr bp+54]
+	push [dword ptr bp+8]
+	push [dword ptr bp+6]
+	push [dword ptr bp+4]
+	call spring_calc
 
 	push [word ptr bp+4]
 	push [word ptr bp+32]
@@ -1701,27 +1725,6 @@ proc math
 	ret 60
 endp math
 ;=====================================================================================================
-proc check_collision
-	push bp
-	mov bp,sp
-	push ax
-	push bx
-	push cx
-	push dx
-	push si
-	push di
-
-
-	pop di
-	pop si
-	pop dx
-	pop cx
-	pop bx
-	pop ax
-	pop bp
-	ret
-endp check_collision
-;=====================================================================================================
 proc check_input
 	push bp
 	mov bp,sp
@@ -1742,6 +1745,158 @@ proc check_input
 	pop bp
 	ret
 endp check_input
+;=====================================================================================================
+;[bp+18] = offset temp_float
+;[bp+16] = offset of yv
+;[bp+14] = offset of xv
+;[bp+12] = offset of pyp
+;[bp+10] = offset of pxp
+;[bp+8] = offset of yp
+;[bp+6] = offset of xp
+;[bp+4] = offset of length_of_points
+proc check_border_collision
+	push bp
+	mov bp,sp
+	push ax
+	push bx
+	push cx
+	push si
+
+	xor bx,bx
+	mov si,[bp+4]
+	mov cx,[si]
+
+	check_y_collision_loop:
+	mov si,[bp+8]
+	add si,bx
+	fld [dword ptr si]
+
+	mov si,[bp+18]
+	mov [dword ptr si],1
+	fild [dword ptr si]
+
+	fcompp
+	fnstsw ax
+	sahf
+	jb y_direction_collision_is_ok
+
+	mov si,[bp+16]
+	add si,bx
+	fld [dword ptr si]
+	fchs
+	fstp [dword ptr si]
+
+	mov si,[bp+10]
+	add si,bx
+	fld [dword ptr si]
+
+	mov si,[bp+6]
+	add si,bx
+	fadd [dword ptr si]
+
+	mov si,[bp+18]
+	mov [dword ptr si],2
+	fidiv [dword ptr si]
+
+	mov si,[bp+6]
+	add si,bx
+	fstp [dword ptr si]
+	y_direction_collision_is_ok:
+	add bx,4
+	loop check_y_collision_loop
+
+	;----------------------------------------------------------------
+
+	xor bx,bx
+	mov si,[bp+4]
+	mov cx,[si]
+
+	check_y_up_collision_loop:
+	mov si,[bp+8]
+	add si,bx
+	fld [dword ptr si]
+
+	mov si,[bp+18]
+	mov [dword ptr si],200
+	fild [dword ptr si]
+
+	fcompp
+	fnstsw ax
+	sahf
+	ja y_up_direction_collision_is_ok
+
+	mov si,[bp+16]
+	add si,bx
+	fld [dword ptr si]
+	fchs
+	fstp [dword ptr si]
+
+	mov si,[bp+10]
+	add si,bx
+	fld [dword ptr si]
+
+	mov si,[bp+6]
+	add si,bx
+	fadd [dword ptr si]
+
+	mov si,[bp+18]
+	mov [dword ptr si],2
+	fidiv [dword ptr si]
+
+	mov si,[bp+6]
+	add si,bx
+	fstp [dword ptr si]
+	y_up_direction_collision_is_ok:
+	add bx,4
+	loop check_y_up_collision_loop
+
+ 
+	pop si
+	pop cx
+	pop bx
+	pop ax
+	pop bp
+	ret 16
+endp check_border_collision
+;=====================================================================================================
+;[bp+20] = offset of yv
+;[bp+18] = offset of xv
+;[bp+16] = offset of temp_integer
+;[bp+14] = offset of temp_float
+;[bp+12] = offset of pyp
+;[bp+10] = offset of pxp
+;[bp+8] = offset of yp
+;[bp+6] = offset of xp
+;[bp+4] = offset of length_of_points
+proc check_collision
+	push bp
+	mov bp,sp
+	push ax
+	push bx
+	push cx
+	push dx
+	push si
+	push di
+
+	push [word ptr bp+14]
+	push [word ptr bp+20]
+	push [word ptr bp+18]
+	push [word ptr bp+12]
+	push [word ptr bp+10]
+	push [word ptr bp+8]
+	push [word ptr bp+6]
+	push [word ptr bp+4]
+	call check_border_collision
+
+	pop di
+	pop si
+	pop dx
+	pop cx
+	pop bx
+	pop ax
+	pop bp
+	ret 18
+endp check_collision
 ;=====================================================================================================
 ;[bp+4] = offset of left_y
 ;[bp+6] = offset of left_x
@@ -1767,6 +1922,8 @@ proc draw_square
 	ret
 endp draw_square
 ;=====================================================================================================
+;[bp+14] = pyp
+;[bp+12] = pxp
 ;[bp+10] = yp offset
 ;[bp+8] = xp offset
 ;[bp+6] = temp_integer
@@ -1782,6 +1939,37 @@ proc draw
 	push si
 	push di
 	; --------------------------
+	mov cx,[bp+4]
+	mov di,[bp+12]
+	mov si,[bp+14]
+	draw_loop_clear:
+	xor ax,ax
+	xor bx,bx
+	xor dx,dx
+	fld [dword ptr si]
+	frndint
+	mov bx,[bp+6]
+	fistp [word ptr bx]
+	mov bx,[word ptr bx]
+
+	mov ax,200
+	sub ax,bx
+	mov bx,320
+	mul bx
+	xor bx,bx
+	fld [dword ptr di]
+	frndint
+	mov bx,[bp+6]
+	fistp [word ptr bx]
+	mov bx,[word ptr bx]
+	add bx,ax
+	mov [byte ptr es:bx],0
+	add di,4
+	add si,4
+	loop draw_loop_clear
+
+	; ----------------------------------------------------------------
+
 	mov cx,[bp+4]
 	mov di,[bp+8]
 	mov si,[bp+10]
@@ -1891,20 +2079,33 @@ main_lop:
 	push offset length_of_points
 	call math
 
+	push offset yv
+	push offset xv
+	push offset temp_integer
+	push offset temp_float
+	push offset pyp
+	push offset pxp
+	push offset yp
+	push offset xp
+	push offset length_of_points
 	call check_collision
 
-	call clear_screen
-
+	push offset	pyp
+	push offset pxp
 	push offset yp
 	push offset xp
 	push offset temp_integer
 	push [word ptr length_of_points]
 	call draw
 
+	mov ah,1
+	int 16h
+	jz no_exiting
 	mov ah,0 ;stop the program to see what is going on
 	int 16h
 	cmp al,27
 	je exit_main_loop
+	no_exiting:
 
 jmp main_lop
 exit_main_loop:
