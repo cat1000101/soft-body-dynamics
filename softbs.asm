@@ -16,9 +16,12 @@ DATASEG
 	knormal dd 6.0
 	dknormal dd 8.4852809906005859375
 	k dd -1.0
-	time_intervuls dd 1.0;0.002
-	time_intervuls_squared_div_2 dd 0.5;0.000002
+	pi_div_2 dd 1.57079637050628662109375
+	time_intervuls dd 0.002
+	time_intervuls_squared_div_2 dd 0.000002
 ;--------------------------
+	temp_float4 dd 0
+	temp_float3 dd 0
 	temp_float2 dd 0
 	temp_float1 dd 0
 ;--------------------------
@@ -1283,6 +1286,71 @@ proc distance_equation
 	ret 12
 endp distance_equation
 ;=====================================================================================================
+;[bp+4] = offset of result
+;[bp+6] = offset of input of x
+;[bp+8] - offset of temp value
+proc arctan
+	push bp
+	mov bp,sp
+	push si
+	push ax
+	push di
+	push cx
+	push bx
+	push dx
+
+	mov cx,5
+	xor ax,ax
+	mov dx,1
+	mov di,[bp+6]
+	mov si,[bp+8]
+	mov bx,[bp+4]
+	mov [dword ptr bx],0
+	large_loop_arctan:
+
+	push cx
+	fld [dword ptr di]
+	mov cx,dx
+	cmp dx,1
+	je there_is_a_zero_in_arctan
+	dec cx
+
+	arctan_x_loop:
+	fmul [dword ptr di]
+	loop arctan_x_loop
+
+	there_is_a_zero_in_arctan:
+	pop cx
+
+	mov [word ptr si],dx
+	fidiv [word ptr si]
+
+
+	cmp ax,0
+	jne not_negetive_now
+	fchs
+	mov ax,1
+	jmp negetive_now
+	not_negetive_now:
+	mov ax,0
+	negetive_now:
+
+	fadd [dword ptr bx]
+	fstp [dword ptr bx]
+
+	add dx,2
+loop large_loop_arctan
+
+	pop dx
+	pop bx
+	pop cx
+	pop di
+	pop ax
+	pop si
+	pop bp
+	ret 6
+endp arctan
+;=====================================================================================================
 ;F=-K*X (k is already negative)
 ;X=distance - nk
 ;cx = bx-ax
@@ -1297,6 +1365,8 @@ endp distance_equation
 ;[bp+18] = offset of C-+?
 ;[bp+20] = ;offset of fx
 ;[bp+22] = ;offset of fy
+;[bp+24] = ;offset of temp_float3
+;[bp+26] = ;offset of temp_float4
 proc spring_force_calc
 	push bp
 	mov bp,sp
@@ -1314,71 +1384,62 @@ proc spring_force_calc
 	push [word ptr bp+4]
 	call distance_equation
 
+	;;;;;;;;;;;;;;;;;;;;;;;; getting distance of l
 	mov si,[bp+16]
 	fld [dword ptr si]
 	mov si,[bp+12]
 	fsub [dword ptr si]
+	mov si,[bp+16]
+	mov [dword ptr si],2
+	fidiv [dword ptr si]
+
 	mov si,[bp+14]
 	fmul [dword ptr si]
 	mov si,[bp+16]
 	fstp [dword ptr si]
 
-
+	;;;;;;;;;;;;;;;;;;;;;;;; getting cx
 	mov si,[bp+8]
 	fld [dword ptr si]
 	mov si,[bp+4]
 	fsub [dword ptr si]
 	mov si,[bp+20]
+
+fst [dword ptr di]
+
 	fstp [dword ptr si]
+	;;;;;;;;;;;;;;;;;;;;;;;; getting cy
 
 	mov si,[bp+10]
 	fld [dword ptr si]
 	mov si,[bp+6]
 	fsub [dword ptr si]
 	mov si,[bp+22]
+	
+fst [dword ptr di]
+
 	fst [dword ptr si]
+	;;;;;;;;;;;;;;;;;;;;;;;; arctan
 
 	mov si,[bp+20]
 	fld [dword ptr si]
-	fldz
-	
-	fcomp
-	fnstsw ax
-	sahf 
-	
-	jnb arctan_is_ok
-	fpatan
 
-fst [dword ptr di]
+	fdivp
+	mov si,[bp+26]
+	fstp [dword ptr si]
 
-	fchs
+	push [word ptr bp+24]
+	push [word ptr bp+26]
+	push [word ptr bp+18]
+	call arctan
 
-fst [dword ptr di]
 
-	jmp spring_force_size_and_C_exit
-	arctan_is_ok:
-	fpatan
-
-fst [dword ptr di]
-
-	spring_force_size_and_C_exit:
 	mov si,[bp+18]
 	fst [dword ptr si]
 	fld [dword ptr si]
 
-	;;;;;;;;;;;;;;;;;;;;;;;;
-	mov [word ptr si],180
-	fldpi
-
+	;;;;;;;;;;;;;;;;;;;;;;;; y force
 fst [dword ptr di]
-
-	fidivr [word ptr si]
-
-fst [dword ptr di]
-
-	fstp [dword ptr si]
-
-
 
 	fsin
 
@@ -1389,11 +1450,6 @@ fst [dword ptr di]
 
 fst [dword ptr di]
 
-	mov si,[bp+18]
-	fmul [dword ptr si]
-
-fst [dword ptr di]
-
 	mov si,[bp+22]
 	fld [dword ptr si]
 
@@ -1404,7 +1460,7 @@ fst [dword ptr di]
 	fcompp
 	fnstsw ax
 	sahf
-	jnb y_is_not_negetive
+	ja y_is_not_negetive
 	fchs
 
 fst [dword ptr di]
@@ -1412,18 +1468,14 @@ fst [dword ptr di]
 	y_is_not_negetive:
 	fstp [dword ptr si]
 
-	;;;;;;;;;;;;;;;;;;;;;;;;
-
-	fcos
+	;;;;;;;;;;;;;;;;;;;;;;;; x forces
+fst [dword ptr di]
+	fadd [dword ptr pi_div_2]
+	fsin
 
 fst [dword ptr di]
 
 	mov si,[bp+16]
-	fmul [dword ptr si]
-
-fst [dword ptr di]
-
-	mov si,[bp+18]
 	fmul [dword ptr si]
 
 fst [dword ptr di]
@@ -1438,7 +1490,7 @@ fst [dword ptr di]
 	fcompp
 	fnstsw ax
 	sahf
-	jnb x_is_not_negetive
+	ja x_is_not_negetive
 	fchs
 
 fst [dword ptr di]
@@ -1451,7 +1503,7 @@ fst [dword ptr di]
 	pop ax
 	pop si
 	pop bp
-	ret 20
+	ret 24
 endp spring_force_calc
 ;=====================================================================================================
 ;[bp+4] = offset knormal
@@ -1466,6 +1518,8 @@ endp spring_force_calc
 ;[bp+22] = loop counter
 ;[bp+24] = offset of fx
 ;[bp+26] = offset of fy
+;[bp+28] = offset of temp_float3
+;[bp+30] = offset of temp_float4
 proc shorten_the_spring_calc
 	push bp
 	mov bp,sp
@@ -1484,6 +1538,8 @@ proc shorten_the_spring_calc
 	shl bx,1
 	mov ax,[bp+22]
 
+	push [word ptr bp+30]
+	push [word ptr bp+28]
 	push [word ptr bp+20]
 	push [word ptr bp+18]
 	push [word ptr bp+16]
@@ -1585,6 +1641,8 @@ endp spring_direction_add
 ;[bp+40] = offset fx
 ;[bp+42] = offset fy
 ;[bp+44] = random
+;[bp+46] = offset of temp_float3
+;[bp+48] = offset of temp_float4
 proc spring_calc
 	push bp
 	mov bp,sp
@@ -1600,6 +1658,8 @@ proc spring_calc
 	spring_calc_loop:
 	mov [bp+44],ax
 
+	push [word ptr bp+48]
+	push [word ptr bp+46]
 	push [word ptr bp+42]
 	push [word ptr bp+40]
 	push [word ptr bp+44]
@@ -1654,6 +1714,8 @@ proc spring_calc
 	pop bx
 	pop bx
 	pop bx
+	pop bx
+	pop bx
 
 
 
@@ -1666,7 +1728,7 @@ proc spring_calc
 	pop bx
 	pop ax
 	pop bp
-	ret 42
+	ret 46
 endp spring_calc
 ;=====================================================================================================
 ;[bp+4] = offset of length_of_points
@@ -1699,6 +1761,8 @@ endp spring_calc
 ;[bp+58] = offset of temp_float1
 ;[bp+60] = offset of k
 ;[bp+62] = offset of temp_float2
+;[bp+64] = offset of temp_float3
+;[bp+66] = offset of temp_float4
 proc math
 	push bp
 	mov bp,sp
@@ -1728,6 +1792,8 @@ proc math
 	push [word ptr bp+30]
 	call gravity_force
 
+	push [word ptr bp+66]
+	push [word ptr bp+64]
 	push 0
 	push [word ptr bp+42]
 	push [word ptr bp+38]
@@ -1788,7 +1854,7 @@ proc math
 	pop bx
 	pop ax
 	pop bp
-	ret 60
+	ret 64
 endp math
 ;=====================================================================================================
 proc check_input
@@ -2113,6 +2179,8 @@ main_lop:
 
 	call check_input
 
+	push offset temp_float4
+	push offset temp_float3
 	push offset temp_float2
 	push offset k
 	push offset temp_float1
