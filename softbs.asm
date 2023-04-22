@@ -1316,26 +1316,31 @@ proc arctan
 	dec cx
 
 	arctan_x_loop:
+fst [dword ptr temp_float_testing]
 	fmul [dword ptr di]
+fst [dword ptr temp_float_testing]
 	loop arctan_x_loop
 
 	there_is_a_zero_in_arctan:
 	pop cx
 
 	mov [word ptr si],dx
+fst [dword ptr temp_float_testing]
 	fidiv [word ptr si]
-
+fst [dword ptr temp_float_testing]
 
 	cmp ax,0
-	jne not_negetive_now
+	je not_negetive_now
 	fchs
-	mov ax,1
+	mov ax,0
 	jmp negetive_now
 	not_negetive_now:
-	mov ax,0
+	mov ax,1
 	negetive_now:
 
+fst [dword ptr temp_float_testing]
 	fadd [dword ptr bx]
+fst [dword ptr temp_float_testing]
 	fstp [dword ptr bx]
 
 	add dx,2
@@ -1435,7 +1440,7 @@ fst [dword ptr di]
 
 
 	mov si,[bp+18]
-	fst [dword ptr si]
+	fld [dword ptr si]
 	fld [dword ptr si]
 
 	;;;;;;;;;;;;;;;;;;;;;;;; y force
