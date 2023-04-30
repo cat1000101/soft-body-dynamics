@@ -15,7 +15,7 @@ DATASEG
 	gravity dd -10.0
 	knormal dd 6.0
 	dknormal dd 8.4852809906005859375
-	k dd -10.0
+	k dd -5.0
 	pi_div_2 dd 1.57079637050628662109375
 	time_intervuls dd 0.002
 	time_intervuls_squared_div_2 dd 0.000002
@@ -1311,12 +1311,39 @@ proc arctan
 	mov cx,5
 	xor ax,ax
 	mov dx,1
-	mov di,[bp+6]
 	mov si,[bp+8]
+	mov di,[bp+6]
 	mov bx,[bp+4]
 	mov [dword ptr bx],0
+
+
+    fld1
+    fld [dword ptr di]
+    fabs
+
+    fcompp
+    fnstsw ax
+    sahf
+    jna is_ok_and_not_abouve_1
+    fld1
+    fdiv [dword ptr di]
+    fstp [dword ptr di]
+
+    push [word ptr bp+8]
+    push [word ptr bp+6]
+    push [word ptr bp+4]
+    call arctan
+
+    fld [dword ptr pi_div_2]
+    fsub [dword ptr bx]
+    fstp [dword ptr bx]
+    
+    jmp arctan_exit
+
+    is_ok_and_not_abouve_1:
 	large_loop_arctan:
 
+    ;loude the first x and check if it is the first loop which will jmp to not sqr the number
 	push cx
 	fld [dword ptr di]
 	mov cx,dx
@@ -1324,6 +1351,7 @@ proc arctan
 	je there_is_a_zero_in_arctan
 	dec cx
 
+    ;sqr the x by dx number
 	arctan_x_loop:
 fst [dword ptr temp_float_testing]
 	fmul [dword ptr di]
@@ -1333,11 +1361,13 @@ fst [dword ptr temp_float_testing]
 	there_is_a_zero_in_arctan:
 	pop cx
 
+    ;div the number by dx which is loop number + loop number times 2
 	mov [word ptr si],dx
 fst [dword ptr temp_float_testing]
 	fidiv [word ptr si]
 fst [dword ptr temp_float_testing]
 
+    ;number is negative? now posetive
 	cmp ax,0
 	je not_negetive_now
 	fchs
@@ -1347,14 +1377,15 @@ fst [dword ptr temp_float_testing]
 	mov ax,1
 	negetive_now:
 
+    ;add the number to the result
 fst [dword ptr temp_float_testing]
 	fadd [dword ptr bx]
 fst [dword ptr temp_float_testing]
 	fstp [dword ptr bx]
 
 	add dx,2
-loop large_loop_arctan
-
+    loop large_loop_arctan
+    arctan_exit:
 	pop dx
 	pop bx
 	pop cx
