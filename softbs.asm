@@ -15,7 +15,7 @@ DATASEG
 	gravity dd -10.0
 	knormal dd 6.0
 	dknormal dd 8.4852809906005859375
-	k dd -1.0
+	k dd -10.0
 	pi_div_2 dd 1.57079637050628662109375
 	time_intervuls dd 0.002
 	time_intervuls_squared_div_2 dd 0.000002
@@ -119,18 +119,18 @@ DATASEG
 				 db '                                            d                                  ',10,13
 				 db '                                            d                                  ',10,13,'$'
 
-	getting_input_massage db '                                        ',10,13
-						  db '                                        ',10,13
-						  db '                                        ',10,13
-						  db '                                        ',10,13
-						  db '                                        ',10,13
-						  db '  please press two numbers between 2-9  ',10,13
-						  db '     this will be your object size      ',10,13
-						  db '                                        ',10,13
-						  db '                                        ',10,13
-						  db '                                        ',10,13
-						  db '                                        ',10,13
-						  db '                                        ',10,13,'$'
+	getting_input_massage db '                                                                                ',10,13
+						  db '                                                                                ',10,13
+						  db '                                                                                ',10,13
+						  db '                                                                                ',10,13
+						  db '                                                                                ',10,13
+						  db '                      please press two numbers between 2-9                      ',10,13
+						  db '                         this will be your object size                          ',10,13
+						  db '                                                                                ',10,13
+						  db '                                                                                ',10,13
+						  db '                                                                                ',10,13
+						  db '                                                                                ',10,13
+						  db '                                                                                ',10,13,'$'
 
 
 ; --------------------------
@@ -754,7 +754,6 @@ proc getting_size_of_object
 	mov ah,0
 	mov [bp+6],ax
 
-	call clear_screen
 
 	pop di
 	pop si
@@ -795,6 +794,11 @@ proc init_of_objects
 	push dx
 	push si
 	push di
+
+	; Go to text mode
+	mov ah, 0
+	mov al, 2
+	int 10h
 	; --------------------------getting the collision objects
 	;	push [bp+42]
 	;	push [bp+40]
@@ -837,7 +841,12 @@ proc init_of_objects
 	push [word ptr bp+6]
 	push [word ptr bp+4]
 	call make_squre
+	; Graphic mode
+	mov ax, 13h
+	int 10h
 	; --------------------------
+	call clear_screen
+
 	pop di
 	pop si
 	pop dx
