@@ -1341,50 +1341,63 @@ proc arctan
     jmp arctan_exit
 
     is_ok_and_not_abouve_1:
-	large_loop_arctan:
-
-    ;loude the first x and check if it is the first loop which will jmp to not sqr the number
-	push cx
+	
 	fld [dword ptr di]
-	mov cx,dx
-	cmp dx,1
-	je there_is_a_zero_in_arctan
-	dec cx
-
-    ;sqr the x by dx number
-	arctan_x_loop:
-fst [dword ptr temp_float_testing]
 	fmul [dword ptr di]
-fst [dword ptr temp_float_testing]
-	loop arctan_x_loop
+	fmul [dword ptr di]
+	
+	mov [dword ptr si],3
+	fidiv [dword ptr si]
+	fadd [dword ptr di]
 
-	there_is_a_zero_in_arctan:
-	pop cx
-
-    ;div the number by dx which is loop number + loop number times 2
-	mov [word ptr si],dx
-fst [dword ptr temp_float_testing]
-	fidiv [word ptr si]
-fst [dword ptr temp_float_testing]
-
-    ;number is negative? now posetive
-	cmp ax,0
-	je not_negetive_now
-	fchs
-	mov ax,0
-	jmp negetive_now
-	not_negetive_now:
-	mov ax,1
-	negetive_now:
-
-    ;add the number to the result
-fst [dword ptr temp_float_testing]
-	fadd [dword ptr bx]
-fst [dword ptr temp_float_testing]
 	fstp [dword ptr bx]
-
-	add dx,2
-    loop large_loop_arctan
+	
+	
+	
+	;;large_loop_arctan:
+;
+    ;;loude the first x and check if it is the first loop which will jmp to not sqr the number
+	;push cx
+	;fld [dword ptr di]
+	;mov cx,dx
+	;cmp dx,1
+	;je there_is_a_zero_in_arctan
+	;dec cx
+;
+    ;;sqr the x by dx number
+	;arctan_x_loop:
+;fst ;[dword ptr temp_float_testing]
+	;fmul [dword ptr di]
+;fst ;[dword ptr temp_float_testing]
+	;loop arctan_x_loop
+;
+	;there_is_a_zero_in_arctan:
+	;pop cx
+;
+    ;;div the number by dx which is loop number + loop number times 2
+	;mov [word ptr si],dx
+;fst ;[dword ptr temp_float_testing]
+	;fidiv [word ptr si]
+;fst ;[dword ptr temp_float_testing]
+;
+    ;;number is negative? now posetive
+	;cmp ax,0
+	;je not_negetive_now
+	;fchs
+	;mov ax,0
+	;jmp negetive_now
+	;not_negetive_now:
+	;mov ax,1
+	;negetive_now:
+;
+    ;;add the number to the result
+;fst ;[dword ptr temp_float_testing]
+	;fadd [dword ptr bx]
+;fst ;[dword ptr temp_float_testing]
+	;fstp [dword ptr bx]
+;
+	;add dx,2
+    ;loop large_loop_arctan
     arctan_exit:
 	pop dx
 	pop bx
