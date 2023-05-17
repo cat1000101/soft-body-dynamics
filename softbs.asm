@@ -15,10 +15,10 @@ DATASEG
 	gravity dd -10.0
 	knormal dd 6.0
 	dknormal dd 8.4852809906005859375
-	k dd -5.0
+	k dd -20.0
 	pi_div_2 dd 1.57079637050628662109375
-	time_intervuls dd 0.002
-	time_intervuls_squared_div_2 dd 0.000002
+	time_intervuls dd 0.005
+	time_intervuls_squared_div_2 dd 0.0000125
 ;--------------------------
 	temp_float4 dd 0
 	temp_float3 dd 0
@@ -1700,6 +1700,11 @@ proc spring_calc
 	mov cx,[si]
 	xor ax,ax
 
+	push ax
+	mov ah,0
+	int 3h
+	pop ax
+
 	spring_calc_loop:
 	mov [bp+44],ax
 
@@ -2171,7 +2176,7 @@ proc draw
 	fistp [word ptr bx]
 	mov bx,[word ptr bx]
 	add bx,ax
-	mov [byte ptr es:bx],4
+	mov [byte ptr es:bx],69
 	add di,4
 	add si,4
 	loop draw_loop
