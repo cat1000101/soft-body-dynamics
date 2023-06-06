@@ -132,9 +132,6 @@ proc arctan
 
 	mov si, [bp+4]
 	fld [dword ptr si]
-
-	fst [dword ptr temp_float_testing]
-	
 	fabs
 	fld1
 	fcomp
@@ -144,56 +141,40 @@ proc arctan
 	fld1
 	fdivrp
 
-	fst [dword ptr temp_float_testing]
-	
 arctan_is_above_1:
 	fdiv [dword ptr di]
-
-	fst [dword ptr temp_float_testing]
-	
 	frndint
-
-	fst [dword ptr temp_float_testing]
-	
 	mov di,[bp+6]
-
-	fst [dword ptr temp_float_testing]
-	
 	fistp [word ptr di]
 
 	push di
 	push [word ptr di]
 	push bx
 	call return_value_from_table
-
-	fst [dword ptr temp_float_testing]
-	
-
 	fld [dword ptr di]
 
-	fst [dword ptr temp_float_testing]
-	
 
 	fld [dword ptr si]
 	fabs
-	fldz
-	fcompp
-    fnstsw ax
-    sahf
-	jna arctan_is_posetive
-	fchs
-arctan_is_posetive:
-
-
-	fld [dword ptr si]
 	fld1
 	fcompp
     fnstsw ax
     sahf
 	ja arctan_is_above_1_2
 	fsubr [dword ptr pi_div_2]
+
 arctan_is_above_1_2:
 
+
+	fld [dword ptr si]
+	fldz
+	fcompp
+    fnstsw ax
+    sahf
+	jna arctan_is_posetive
+	fchs
+
+arctan_is_posetive:
 
 	fst [dword ptr temp_float_testing]
 	
