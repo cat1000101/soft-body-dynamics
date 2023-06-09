@@ -15,7 +15,7 @@ DATASEG
 	gravity dd -10.0
 	knormal dd 6.0
 	dknormal dd 8.4852809906005859375
-	k dd -20.0
+	k dd -1.0
 	pi_div_2 dd 1.57079637050628662109375
 	time_intervuls dd 0.005
 	time_intervuls_squared_div_2 dd 0.0000125
@@ -1595,10 +1595,16 @@ fst [dword ptr di]
 fst [dword ptr di]
 
 	fst [dword ptr si]
-	;;;;;;;;;;;;;;;;;;;;;;;; arctan
+	;;;;;;;;;;;;;;;;;;;;;;;; cy/cx arctan
 
 	mov si,[bp+20]
 	fld [dword ptr si]
+
+	fldz
+	fcomp
+	fnstsw ax
+	sahf
+	je cx_is_zero
 
 	fdivp
 	mov si,[bp+26]
@@ -1608,6 +1614,15 @@ fst [dword ptr di]
 	push [word ptr bp+26]
 	call arctan
 
+	jmp cx_is_ok
+
+	cx_is_zero:
+	mov si,[bp+18]
+	fstp [dword ptr si]
+	fstp [dword ptr si]
+	fld [dword ptr pi_div_2]
+	fstp [dword ptr si]
+	cx_is_ok:
 
 	mov si,[bp+18]
 	fld [dword ptr si]
@@ -1830,10 +1845,10 @@ proc spring_calc
 	mov cx,[si]
 	xor ax,ax
 
-	push ax
-	mov ah,0
-	int 3h
-	pop ax
+	;push ax
+	;mov ah,0
+	;int 3h
+	;pop ax
 
 	spring_calc_loop:
 	mov [bp+44],ax
