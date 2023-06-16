@@ -1,7 +1,7 @@
 .386
 IDEAL
 MODEL small
-STACK 200h
+STACK 100h
 DATASEG
 ; --------------------------
 	temp_float_testing dd 0
@@ -11,14 +11,14 @@ DATASEG
 	length_of_points dw 0
 	length_of_points_times_4 dw 0
 	temp_integer dd 0
-	mass dd 0.1
+	mass dd 1
 	gravity dd -10.0
 	knormal dd 6.0
 	dknormal dd 8.4852809906005859375
-	k dd -1.0
+	k dd -5.0
 	pi_div_2 dd 1.57079637050628662109375
-	time_intervuls dd 0.005
-	time_intervuls_squared_div_2 dd 0.0000125
+	time_intervuls dd 0.1;0.005
+	time_intervuls_squared_div_2 dd 0.005;0.0000125
 ;--------------------------
 	temp_float4 dd 0
 	temp_float3 dd 0
@@ -2426,6 +2426,17 @@ main_lop:
 	push offset temp_integer
 	push [word ptr length_of_points]
 	call draw
+
+
+	mov ah,0 ;stop the program to see what is going on
+	int 16h
+	cmp al,100
+	jne no_debug
+	push ax
+	mov ah,0
+	int 3h
+	pop ax
+no_debug:
 
 	mov ah,1
 	int 16h
