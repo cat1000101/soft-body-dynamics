@@ -11,7 +11,7 @@ DATASEG
 	length_of_points dw 0
 	length_of_points_times_4 dw 0
 	temp_integer dd 0
-	mass dd 1
+	mass dd 1.0
 	gravity dd -10.0
 	knormal dd 6.0
 	dknormal dd 8.4852809906005859375
@@ -35,10 +35,11 @@ DATASEG
 	dd 0.53303411,0.5404195,0.54774001,0.55499573,0.56218674,0.56931319,0.57637522,0.58337301,0.59030675,0.59717666
 	dd 0.60398298,0.61072596,0.61740589,0.62402305,0.63057776,0.63707033,0.64350111,0.64987045,0.65617872,0.66242629
 	dd 0.66861357,0.67474094,0.68080883,0.68681765,0.69276784,0.69865982,0.70449406,0.71027101,0.71599111,0.72165485
-	dd 0.72726269,0.7328151,0.73831257,0.74375558,0.74914462,0.75448018,0.75976275,0.76499283,0.77017091,0.7752975,0.78037308
+	dd 0.72726269,0.7328151,0.73831257,0.74375558,0.74914462,0.75448018,0.75976275,0.76499283,0.77017091,0.7752975,0.78037308,0.7853981852
 ;--------------------------
 	step_flag dw 0
-
+	nan dw 0111111110000000b
+	nan_place_holder dd 0
 
 	xp dd 0
 	dd 100 dup(?)
@@ -148,6 +149,31 @@ DATASEG
 ; --------------------------
 ;hello world
 CODESEG
+proc debug
+	push ax
+	push bx
+	push si
+	
+	mov si,offset nan_place_holder
+	fst [dword ptr si]
+	fst [dword ptr temp_float_testing]
+	add si,2
+	mov ax,[si]
+	mov si,offset nan
+	mov bx,[si]
+	and ax,bx
+	cmp ax,bx
+	jne not_debuged
+
+	mov ah,0
+	int 3h
+	not_debuged:
+
+	pop si
+	pop bx
+	pop ax
+	ret 
+endp debug
 ;=====================================================================================================
 ;[bp+4] = amount of cycles
 proc timer
@@ -175,6 +201,7 @@ proc timer
 	pop bx
 	pop ax
 	pop es
+	pop bp
 	ret 2
 endp timer
 ;=====================================================================================================
@@ -944,11 +971,15 @@ proc new_position_equation
 	mov si,[bp+4]
 	fadd [dword ptr si]
 
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
 	;mul a and t^2/2 and add the previos calc to this
 	mov si,[bp+10]
 	fld [dword ptr si]
 	mov si,[bp+12]
 	fmul [dword ptr si]
+
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
 
 	fadd
 	mov si,[bp+14]
@@ -1049,6 +1080,9 @@ proc new_velocity_equation
 	mov si,[bp+4]
 	fadd [dword ptr si]
 	mov si,[bp+10]
+
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
 	fstp [dword ptr si]
 
 	pop si
@@ -1165,6 +1199,9 @@ proc calc_acceleration
 	fdiv [dword ptr si]
 	mov si,[bp+4]
 	add si,ax
+
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
 	fstp [dword ptr si]
 
 	mov si,[bp+10]
@@ -1174,6 +1211,9 @@ proc calc_acceleration
 	fdiv [dword ptr si]
 	mov si,[bp+6]
 	add si,ax
+
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
 	fstp [dword ptr si]
 
 	add ax,4
@@ -1203,6 +1243,9 @@ proc gravity_force
 	mov si,[bp+6]
 	fmul [dword ptr si]
 	mov di,[bp+12]
+
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
 	fstp [dword ptr di]
 
 	mov si,[bp+10]
@@ -1212,6 +1255,9 @@ proc gravity_force
 	gravity_forces_loop:
 	fld [dword ptr si]
 	fadd [dword ptr di]
+
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
 	fstp [dword ptr si]
 	add si,4
 	loop gravity_forces_loop
@@ -1245,6 +1291,9 @@ proc reset_place_values
 	fld [dword ptr si]
 	mov si,[bp+8]
 	add si,ax
+
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
 	fstp [dword ptr si]
 
 	mov si,[bp+6]
@@ -1252,6 +1301,9 @@ proc reset_place_values
 	fld [dword ptr si]
 	mov si,[bp+10]
 	add si,ax
+
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
 	fstp [dword ptr si]
 
 	add ax,4
@@ -1299,6 +1351,9 @@ proc distance_equation
 	faddp
 	fsqrt
 	mov si,[bp+12]
+
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
 	fstp [dword ptr si]
 
 	pop di
@@ -1439,6 +1494,9 @@ proc return_value_from_table
 	add bx,ax
 	fld [dword ptr bx]
 	mov bx,[bp+8]
+
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
 	fstp [dword ptr bx]
 
 	pop cx
@@ -1569,9 +1627,15 @@ proc spring_force_calc
 	mov [dword ptr si],2
 	fidiv [dword ptr si]
 
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
+
 	mov si,[bp+14]
 	fmul [dword ptr si]
 	mov si,[bp+16]
+
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
 	fstp [dword ptr si]
 
 	;;;;;;;;;;;;;;;;;;;;;;;; getting cx
@@ -1580,6 +1644,9 @@ proc spring_force_calc
 	mov si,[bp+4]
 	fsub [dword ptr si]
 	mov si,[bp+20]
+
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
 
 fst [dword ptr di]
 
@@ -1591,6 +1658,9 @@ fst [dword ptr di]
 	mov si,[bp+6]
 	fsub [dword ptr si]
 	mov si,[bp+22]
+
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
 	
 fst [dword ptr di]
 
@@ -1608,6 +1678,9 @@ fst [dword ptr di]
 
 	fdivp
 	mov si,[bp+26]
+
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
 	fstp [dword ptr si]
 	push [word ptr bp+18]
 	push [word ptr bp+24]
@@ -1621,6 +1694,9 @@ fst [dword ptr di]
 	fstp [dword ptr si]
 	fstp [dword ptr si]
 	fld [dword ptr pi_div_2]
+
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
 	fstp [dword ptr si]
 	cx_is_ok:
 
@@ -1633,10 +1709,16 @@ fst [dword ptr di]
 
 	fsin
 
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
+
 fst [dword ptr di]
 
 	mov si,[bp+16]
 	fmul [dword ptr si]
+
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
 
 fst [dword ptr di]
 
@@ -1663,10 +1745,16 @@ fst [dword ptr di]
 	fadd [dword ptr pi_div_2]
 	fsin
 
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
+
 fst [dword ptr di]
 
 	mov si,[bp+16]
 	fmul [dword ptr si]
+
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
 
 fst [dword ptr di]
 
@@ -1686,6 +1774,9 @@ fst [dword ptr di]
 fst [dword ptr di]
 
 	x_is_not_negetive:
+
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
 	fstp [dword ptr si]
 
 
@@ -1795,6 +1886,9 @@ proc spring_direction_add
 	mov si,[bp+8]
 	add si,ax
 	fadd [dword ptr si]
+
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
 	fstp [dword ptr si]
 
 	mov si,[bp+6]
@@ -1802,6 +1896,9 @@ proc spring_direction_add
 	mov si,[bp+4]
 	add si,ax
 	fadd [dword ptr si]
+
+call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
+
 	fstp [dword ptr si]
 
 	pop ax
