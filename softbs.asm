@@ -812,6 +812,8 @@ endp getting_size_of_object
 ;[bp+10] = offset of yp
 ;[bp+12] = offset of pyp
 ;[bp+14] = offset of yv
+;[bp+16] = offset of xf
+;[bp+18] = offset of yf
 proc reset_everything
 	push bp
 	mov bp,sp
@@ -847,6 +849,17 @@ proc reset_everything
 	add si,4
 	add di,4
 	loop y_reset_loop
+
+	mov bx,[bp+16]
+	mov si,[bp+18]
+	mov cx,100
+	forces_reset_loop:
+	mov [dword ptr bx],0
+	mov [dword ptr si],0
+
+	add bx,4
+	add si,4
+	loop forces_reset_loop
 
 	pop di
 	pop si
@@ -2358,6 +2371,8 @@ start:
 start_again_the_main_loop:
 	call init_manu
 
+	push offset yf
+	push offset xf
 	push offset yv
 	push offset pyp
 	push offset yp
