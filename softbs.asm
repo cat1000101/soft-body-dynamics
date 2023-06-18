@@ -17,8 +17,8 @@ DATASEG
 	dknormal dd 8.4852809906005859375
 	k dd -5.0
 	pi_div_2 dd 1.57079637050628662109375
-	time_intervuls dd 0.1;0.005
-	time_intervuls_squared_div_2 dd 0.005;0.0000125
+	time_intervuls dd 0.005
+	time_intervuls_squared_div_2 dd 0.0000125
 ;--------------------------
 	temp_float4 dd 0
 	temp_float3 dd 0
@@ -84,53 +84,55 @@ DATASEG
 	right_x dw 200,300;10 dup(0)
 	right_y dw 70,50;10 dup(0)
 
-	massage_opening db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13
-					db '                                            c                                  ',10,13,'$'
+	massage_opening db 201,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,187,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                            soft body simulation                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                          press i for instructions                           ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                              press s to start                               ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 200,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,188,10,13,'$'
 	
-	massage_info db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13
-				 db '                                            d                                  ',10,13,'$'
+	massage_info db 201,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,187,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'       the simulation runs by itself so there is minimal controls            ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'       controls:                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'          esc = exit the program                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'          r = restart the program                                            ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 186,'                                                                             ',186,10,13
+					db 200,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,205,188,10,13,'$'
 
 	getting_input_massage db '                                                                                ',10,13
 						  db '                                                                                ',10,13
@@ -804,6 +806,56 @@ proc getting_size_of_object
 	ret
 endp getting_size_of_object
 ;=====================================================================================================
+;[bp+4] = offset of xp
+;[bp+6] = offset of pxp
+;[bp+8] = offset of xv
+;[bp+10] = offset of yp
+;[bp+12] = offset of pyp
+;[bp+14] = offset of yv
+proc reset_everything
+	push bp
+	mov bp,sp
+	push bx
+	push cx
+	push si
+	push di
+
+	mov bx,[bp+4]
+	mov si,[bp+6]
+	mov di,[bp+8]
+	mov cx,100
+	x_reset_loop:
+	mov [dword ptr bx],0
+	mov [dword ptr si],0
+	mov [dword ptr di],0
+
+	add bx,4
+	add si,4
+	add di,4
+	loop x_reset_loop
+
+	mov bx,[bp+10]
+	mov si,[bp+12]
+	mov di,[bp+14]
+	mov cx,100
+	y_reset_loop:
+	mov [dword ptr bx],0
+	mov [dword ptr si],0
+	mov [dword ptr di],0
+
+	add bx,4
+	add si,4
+	add di,4
+	loop y_reset_loop
+
+	pop di
+	pop si
+	pop cx
+	pop bx
+	pop bp
+	ret 12
+endp reset_everything
+;=====================================================================================================
 ;[bp+4] = x numbers of points in the x direction
 ;[bp+6] = y numbers of points in the y direction
 ;[bp+8] = offset of x_position in dataseg
@@ -971,15 +1023,11 @@ proc new_position_equation
 	mov si,[bp+4]
 	fadd [dword ptr si]
 
-call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
-
 	;mul a and t^2/2 and add the previos calc to this
 	mov si,[bp+10]
 	fld [dword ptr si]
 	mov si,[bp+12]
 	fmul [dword ptr si]
-
-call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
 
 	fadd
 	mov si,[bp+14]
@@ -1080,8 +1128,6 @@ proc new_velocity_equation
 	mov si,[bp+4]
 	fadd [dword ptr si]
 	mov si,[bp+10]
-
-call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
 
 	fstp [dword ptr si]
 
@@ -1200,8 +1246,6 @@ proc calc_acceleration
 	mov si,[bp+4]
 	add si,ax
 
-call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
-
 	fstp [dword ptr si]
 
 	mov si,[bp+10]
@@ -1211,8 +1255,6 @@ call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;deb
 	fdiv [dword ptr si]
 	mov si,[bp+6]
 	add si,ax
-
-call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
 
 	fstp [dword ptr si]
 
@@ -1244,8 +1286,6 @@ proc gravity_force
 	fmul [dword ptr si]
 	mov di,[bp+12]
 
-call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
-
 	fstp [dword ptr di]
 
 	mov si,[bp+10]
@@ -1255,8 +1295,6 @@ call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;deb
 	gravity_forces_loop:
 	fld [dword ptr si]
 	fadd [dword ptr di]
-
-call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
 
 	fstp [dword ptr si]
 	add si,4
@@ -1292,8 +1330,6 @@ proc reset_place_values
 	mov si,[bp+8]
 	add si,ax
 
-call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
-
 	fstp [dword ptr si]
 
 	mov si,[bp+6]
@@ -1301,8 +1337,6 @@ call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;deb
 	fld [dword ptr si]
 	mov si,[bp+10]
 	add si,ax
-
-call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
 
 	fstp [dword ptr si]
 
@@ -1352,8 +1386,6 @@ proc distance_equation
 	fsqrt
 	mov si,[bp+12]
 
-call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
-
 	fstp [dword ptr si]
 
 	pop di
@@ -1361,120 +1393,6 @@ call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;deb
 	pop bp
 	ret 12
 endp distance_equation
-;=====================================================================================================
-;[bp+4] = offset of result
-;[bp+6] = offset of input of x
-;[bp+8] - offset of temp value
-;proc arctan
-;	push bp
-;	mov bp,sp
-;	push si
-;	push ax
-;	push di
-;	push cx
-;	push bx
-;	push dx
-;
-;	mov cx,5
-;	xor ax,ax
-;	mov dx,1
-;	mov si,[bp+8]
-;	mov di,[bp+6]
-;	mov bx,[bp+4]
-;	mov [dword ptr bx],0
-;
-;
-;    fld1
-;    fld [dword ptr di]
-;    fabs
-;
-;    fcompp
-;    fnstsw ax
-;    sahf
-;    jna is_ok_and_not_abouve_1
-;    fld1
-;    fdiv [dword ptr di]
-;    fstp [dword ptr di]
-;
-;    push [word ptr bp+8]
-;    push [word ptr bp+6]
-;    push [word ptr bp+4]
-;    call arctan
-;
-;    fld [dword ptr pi_div_2]
-;    fsub [dword ptr bx]
-;    fstp [dword ptr bx]
-;    
-;    jmp arctan_exit
-;
-;    is_ok_and_not_abouve_1:
-;	
-;	fld [dword ptr di]
-;	fmul [dword ptr di]
-;	fmul [dword ptr di]
-;	
-;	mov [dword ptr si],3
-;	fidiv [dword ptr si]
-;	fadd [dword ptr di]
-;
-;	fstp [dword ptr bx]
-;	
-;	
-;	
-	;;large_loop_arctan:
-;
-    ;;loude the first x and check if it is the first loop which will jmp to not sqr the number
-	;push cx
-	;fld [dword ptr di]
-	;mov cx,dx
-	;cmp dx,1
-	;je there_is_a_zero_in_arctan
-	;dec cx
-;
-    ;;sqr the x by dx number
-	;arctan_x_loop:
-;fst ;[dword ptr temp_float_testing]
-	;fmul [dword ptr di]
-;fst ;[dword ptr temp_float_testing]
-	;loop arctan_x_loop
-;
-	;there_is_a_zero_in_arctan:
-	;pop cx
-;
-    ;;div the number by dx which is loop number + loop number times 2
-	;mov [word ptr si],dx
-;fst ;[dword ptr temp_float_testing]
-	;fidiv [word ptr si]
-;fst ;[dword ptr temp_float_testing]
-;
-    ;;number is negative? now posetive
-	;cmp ax,0
-	;je not_negetive_now
-	;fchs
-	;mov ax,0
-	;jmp negetive_now
-	;not_negetive_now:
-	;mov ax,1
-	;negetive_now:
-;
-    ;;add the number to the result
-;fst ;[dword ptr temp_float_testing]
-	;fadd [dword ptr bx]
-;fst ;[dword ptr temp_float_testing]
-	;fstp [dword ptr bx]
-;
-	;add dx,2
-    ;loop large_loop_arctan
-;    arctan_exit:
-;	pop dx
-;	pop bx
-;	pop cx
-;	pop di
-;	pop ax
-;	pop si
-;	pop bp
-;	ret 6
-;endp arctan
 ;=====================================================================================================
 ;[bp+4] = offset table starting place
 ;[bp+6] = byte the place in the table dd
@@ -1494,8 +1412,6 @@ proc return_value_from_table
 	add bx,ax
 	fld [dword ptr bx]
 	mov bx,[bp+8]
-
-call debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug;debug
 
 	fstp [dword ptr bx]
 
@@ -1568,8 +1484,6 @@ arctan_is_above_1_2:
 	fchs
 
 arctan_is_posetive:
-
-	fst [dword ptr temp_float_testing]
 	
 	mov bx,[bp+8]
 	fstp [dword ptr bx]
@@ -1583,7 +1497,6 @@ arctan_is_posetive:
 	pop bp
 	ret 6
 endp arctan
-;=====================================================================================================
 ;=====================================================================================================
 ;F=-K*X (k is already negative)
 ;X=distance - nk
@@ -2442,8 +2355,16 @@ start:
     mov es, ax
 ; --------------------------
 
-;start_again_the_main_loop:
+start_again_the_main_loop:
 	call init_manu
+
+	push offset yv
+	push offset pyp
+	push offset yp
+	push offset xv
+	push offset pxp
+	push offset xp
+	call reset_everything
 
 	push offset right_x
 	push offset right_y
@@ -2525,15 +2446,15 @@ main_lop:
 	call draw
 
 
-	mov ah,0 ;stop the program to see what is going on
-	int 16h
-	cmp al,100
-	jne no_debug
-	push ax
-	mov ah,0
-	int 3h
-	pop ax
-no_debug:
+;	mov ah,0 ;stop the program to see what is going on
+;	int 16h
+;	cmp al,100
+;	jne no_debug
+;	push ax
+;	mov ah,0
+;	int 3h
+;	pop ax
+;no_debug:
 
 	mov ah,1
 	int 16h
@@ -2542,6 +2463,8 @@ no_debug:
 	int 16h
 	cmp al,27
 	je exit_main_loop
+	cmp al,'r'
+	je start_again_the_main_loop
 	no_exiting:
 
 jmp main_lop
